@@ -1,8 +1,13 @@
-# React + Vite
+<p align="center"><a href='https://postimg.cc/dkm3tsZP' target='_blank'><a href='https://postimages.org/' target='_blank'><img src='https://i.postimg.cc/RFmrHLtV/oliges-logo-1.png' border='0' alt='oliges-logo-1' width=300/></a></p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## About Oliges
 
-Currently, two official plugins are available:
+Oliges, an easy-to-use web application, is designed to streamline the management of olive oil cooperatives, covering everything from olive intake management to the automated generation of Delivery Note (DAT) documents. Oliges stands out for its ability to:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Manage information about farmers and their properties.
+- Record olive intake and generate receipts automatically.
+- Handle lots sent to the mills.
+- Simplify the creation of necessary documentation.
+- Provide detailed statistics visualization.
+
+With Oliges, you'll efficiently and swiftly digitize your cooperative.
