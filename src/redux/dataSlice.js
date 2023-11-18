@@ -7,7 +7,7 @@ const initialState = JSON.parse(localStorage.getItem('data')) || {
 };
 
 export const dataSlice = createSlice({
-    name: "user",
+    name: "data",
     initialState,
     reducers: {
         addData: (state, action) => {

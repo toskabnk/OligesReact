@@ -139,7 +139,9 @@ function FarmerRegister() {
                 margin: 'auto',
                 marginTop: '20px',
                 marginBottom: '20px',
-                maxWidth: '60%'
+                maxWidth: '60%',
+                borderRadius: '5px',
+                boxShadow: '2px 2px 10px gray',
                 }}>
                 <Box sx={{display: 'flex', justifyContent: 'center'}}>
                     <Typography sx={{marginTop: '20px'}} variant="h4">
