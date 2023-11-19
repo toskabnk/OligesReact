@@ -13,6 +13,7 @@ export const StyledFlexFull = styled('div')`
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 100vh;
   height: ${props => (props.height ? props.height : '100vh;')};;
   background-color: #eeeeee;
 `
