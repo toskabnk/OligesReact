@@ -77,7 +77,7 @@ const Navbar =() => {
                         {isCooperative ? (
                             <>
                                 <styled.NavBarItems>
-                                    <styled.NavBarLink to='/'>Farmers</styled.NavBarLink>
+                                    <styled.NavBarLink to='/farmers'>Farmers</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
                                     <styled.NavBarLink to='/'>Receipts</styled.NavBarLink>

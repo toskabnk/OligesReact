@@ -5,6 +5,7 @@ import CooperativeRegister from '../pages/CooperativeRegister';
 import Register from '../pages/Register';
 import Login from '../pages/Login';
 import Profile from '../pages/Profile';
+import Farmers from '../pages/Farmers';
 
 const Routes = () => {
     return (
@@ -14,6 +15,7 @@ const Routes = () => {
         <Route path="/register-cooperative" element={<CooperativeRegister/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/profile" element={<Profile/>} />
+        <Route path="/farmers" element={<Farmers/>} />
         <Route path="/" element={<Home/>} />
         </ReactRoutes>
     )
