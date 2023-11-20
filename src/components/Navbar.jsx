@@ -97,7 +97,7 @@ const Navbar =() => {
                             </>
                         )}
                         <styled.RightNavItem>
-                            <styled.NavBarLink to='/user'>{name}</styled.NavBarLink>
+                            <styled.NavBarLink to='/profile'>{name}</styled.NavBarLink>
                         </styled.RightNavItem><styled.RightNavItem>
                         <styled.NavBarLogout onClick={logout}>Logout</styled.NavBarLogout>
                         </styled.RightNavItem>

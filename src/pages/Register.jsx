@@ -30,14 +30,14 @@ const Register = () => {
           What are you?
         </Typography>
         <Box>
-          <Button component={RouterLink} to="/farmer-register"
+          <Button component={RouterLink} to="/register-farmer"
             variant="contained"
             color="primary"
             sx={{ mr: 2 }}
           >
             Farmer
           </Button>
-          <Button component={RouterLink} to="/cooperative-register"
+          <Button component={RouterLink} to="/register-cooperative"
             variant="contained"
             color="primary"
           >
