@@ -92,16 +92,12 @@ function Profile() {
         initialValues: {
             name: "",
             email: "",
-            password:"",
-            password2: "",
             nif: "",
             phone_number: "",
         },
         validationSchema: Yup.object().shape({
             name: Yup.string().max(150, 'Must be 150 characters or less').required('Name is required'),
             email: Yup.string().email('Invalid email address').required('Email is required'),
-            password: Yup.string().min(8, 'Must be 8 characters or more').required('Password is required'),
-            password2: Yup.string().min(8, 'Must be 8 characters or more').oneOf([Yup.ref('password'), null], 'Passwords must match').required('Password confirmation is required'),
             nif: Yup.string().max(9, 'Must be 9 characters or less').required('NIF is required'),
             phone_number: Yup.string().max(9, 'Must be 9 characters or less').required('Phone number is required'),
         }),
@@ -241,7 +237,7 @@ function Profile() {
                 title='Personal Details'
                 open={openPersonal}
                 setOpen={setOpenPersonal}
-                info={personalInfo}
+                info={isCooperative ? cooperativeInfo : personalInfo}
                 error={error}
                 isLoading={isLoading}
             >
