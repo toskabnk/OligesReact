@@ -1,4 +1,4 @@
-import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
+import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Snackbar, Tooltip } from "@mui/material";
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import { useEffect, useState } from "react";
@@ -10,6 +10,12 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
+import AddIcon from '@mui/icons-material/Add';
+import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
+import RegisterForm from "../components/RegisterFormComponents/RegisterForm";
+import * as Yup from 'yup';
+import { useFormik } from "formik";
+import Alert from "../components/AlertComponent";
 
 function Farmers() {
     const apiRef = useGridApiRef();
@@ -21,6 +27,10 @@ function Farmers() {
     const [farmer, setFarmer] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [loadDetails, setLoadDetails] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [showSnackBar, setShowSnackBar] = useState(false);
     
     const controller = new AbortController();
     const navigate = useNavigate();
@@ -38,7 +48,89 @@ function Farmers() {
     const handleButtonClick = (id) => {
         // Handle button click logic here
         console.log(id);
-        };
+    };
+
+    const handleCloseSnackbar = () => {
+        setShowSnackBar(false);
+    };
+
+    const loadFarmers = async () => {
+        await oligesManagementApi.get('cooperative/farmers', { bearerToken: access_token, signal: controller.signal })
+            .then((response) => {
+                console.log(response.data);
+                
+                const transformedData = response.data.data.farmer.map((farmer) => ({
+                    id: farmer.id,
+                    dni: farmer.dni,
+                    name: farmer.name,
+                    surname: farmer.surname,
+                    phone_number: farmer.phone_number,
+                    movil_number: farmer.movil_number,
+                    user_id: farmer.user_id,
+                    address_id: farmer.address_id,
+                    email: farmer.user.email,
+                    partner: farmer.pivot.partner === 1 ? 'Yes' : 'No',
+                    active: farmer.pivot.active === 1 ? 'Yes' : 'No',
+                }));
+                setFarmers(transformedData);
+                setLoading(false);
+            })
+            .catch(() => {
+                setLoading(false);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            })
+    }
+
+    const register = async (values) => {
+        setIsLoading(true);
+
+        let copyValues = {
+            active: true,
+            ...values};
+        
+        //Remove empty values
+        Object.keys(copyValues).forEach((key) => (copyValues[key] == null || copyValues[key] == "") && delete copyValues[key]);
+
+        await oligesManagementApi.post('farmer', copyValues, { bearerToken: access_token })
+            .then((response) => {
+                console.log(response);
+                setIsLoading(false);
+                setIsSuccess(true);
+                setShowSnackBar(true);
+                formik.resetForm();
+                setIsAdding(false);
+                loadFarmers();
+            })
+            .catch((error) => {
+                console.log(error.response);
+                setIsLoading(false);
+                setIsSuccess(false);
+                const responseData = error.response.data;
+                if (responseData.data && responseData.data.errors) {
+                    const validationErrors = responseData.data.errors;
+                    //Open sweet alert with errors
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Please check the errors',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        target: document.getElementById('dialog')
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //Loop through errors and set formik errors
+                            Object.keys(validationErrors).forEach((key) => {
+                                formik.setFieldError(key, validationErrors[key][0]);
+                            });
+                        }
+                    })
+                }
+            })
+    }
 
     function loadModalContent(id) {
         oligesManagementApi.get(`farmer/${id}`, { bearerToken: access_token })
@@ -78,35 +170,7 @@ function Farmers() {
 
     //Load farmers from API
     useEffect(() => {
-        oligesManagementApi.get('cooperative/farmers', { bearerToken: access_token, signal: controller.signal })
-            .then((response) => {
-                console.log(response.data);
-                
-                const transformedData = response.data.data.farmer.map((farmer) => ({
-                    id: farmer.id,
-                    dni: farmer.dni,
-                    name: farmer.name,
-                    surname: farmer.surname,
-                    phone_number: farmer.phone_number,
-                    movil_number: farmer.movil_number,
-                    user_id: farmer.user_id,
-                    address_id: farmer.address_id,
-                    email: farmer.user.email,
-                    partner: farmer.pivot.partner === 1 ? 'Yes' : 'No',
-                    active: farmer.pivot.active === 1 ? 'Yes' : 'No',
-                }));
-                setFarmers(transformedData);
-                setLoading(false);
-            })
-            .catch(() => {
-                setLoading(false);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Something went wrong',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                })
-            })
+        loadFarmers()
     }, [access_token]);
 
     useEffect(() => {
@@ -116,6 +180,58 @@ function Farmers() {
         }
     }, [isCooperative]);
 
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+            surname: "",
+            email: "",
+            dni: "",
+            phone_number: "",
+            movil_number: "",
+            road_type: "",
+            road_name: "",
+            road_number: "",
+            road_letter: "",
+            road_km: "",
+            block: "",
+            portal: "",
+            stair: "",
+            floor: "",
+            door: "",
+            town_entity: "",
+            town_name: "",
+            province: "",
+            country: "",
+            postal_code: "",
+            partner: false,
+        },
+        validationSchema: Yup.object().shape({
+            name: Yup.string().max(150, 'Must be 150 characters or less').required('Name is required'),
+            surname: Yup.string().max(150, 'Must be 15 characters or less').required('Surname is required'),
+            email: Yup.string().email('Invalid email address').required('Email is required'),
+            dni: Yup.string().max(9, 'Must be 9 characters or less').required('DNI is required'),
+            phone_number: Yup.string().max(9, 'Must be 9 characters or less'),
+            movil_number: Yup.string().max(9, 'Must be 9 characters or less'),
+            road_type: Yup.string().max(30, 'Must be 30 characters or less').required('Road type is required'),
+            road_name: Yup.string().max(150, 'Must be 150 characters or less').required('Road name is required'),
+            road_number: Yup.string().max(5, 'Must be 5 characters or less').required('Road number is required'),
+            road_letter: Yup.string().max(5, 'Must be 5 characters or less'),
+            road_km: Yup.string().max(10, 'Must be 10 characters or less'),
+            block: Yup.string().max(10, 'Must be 10 characters or less'),
+            portal: Yup.string().max(10, 'Must be 10 characters or less'),
+            stair: Yup.string().max(10, 'Must be 10 characters or less'),
+            floor: Yup.string().max(5, 'Must be 5 characters or less'),
+            door: Yup.string().max(5, 'Must be 5 characters or less'),
+            town_entity: Yup.string().max(50, 'Must be 50 characters or less'),
+            town_name: Yup.string().max(50, 'Must be 50 characters or less').required('Town name is required'),
+            province: Yup.string().max(50, 'Must be 50 characters or less').required('Province is required'),
+            country: Yup.string().max(50, 'Must be 50 characters or less').required('Country is required'),
+            postal_code: Yup.string().max(5, 'Must be 5 characters or less').required('Postal code is required'),
+        }),
+        onSubmit: values => {
+            register(values)
+        },
+    });
 
     const columns = [
         {
@@ -172,6 +288,18 @@ function Farmers() {
         },
     ];
 
+    function CustomToolbar() {
+        return (
+          <GridToolbarContainer>
+            <GridToolbarColumnsButton />
+            <GridToolbarFilterButton />
+            <GridToolbarDensitySelector />
+            <GridToolbarExport />
+            <Button startIcon={<AddIcon />} variant="text" color="primary" onClick={() => setIsAdding(true)}>New Farmer</Button>
+          </GridToolbarContainer>
+        );
+    }
+
     return (
         <Card sx={{ 
             marginLeft: "auto",
@@ -191,6 +319,7 @@ function Farmers() {
                 slots={{
                     loadingOverlay: LinearProgress,
                     noRowsOverlay: CustomNoRowsOverlay,
+                    toolbar: CustomToolbar,
                 }}
                 loading={loading}
             />
@@ -218,6 +347,29 @@ function Farmers() {
             open={loadDetails}>
             <CircularProgress color="inherit" />
         </Backdrop>
+        <Dialog 
+            id="dialog"
+            maxWidth="xl"
+            onClose={() => setIsAdding(false)}
+            open={isAdding}>
+                <DialogContent>
+                    <RegisterForm
+                        title="New Farmer"
+                        withPassword={true}
+                        cooperative={false}
+                        isLoading={isLoading}
+                        isSuccess={isSuccess}
+                        formik={formik}
+                        checkbox={true}
+                        width="100%"
+                    />
+                </DialogContent>
+        </Dialog>
+        <Snackbar open={showSnackBar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
+            <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+                Farmer registered!
+            </Alert>
+        </Snackbar>
         </Card>
 
     );
