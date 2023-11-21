@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Card, LinearProgress, Tooltip } from "@mui/material";
+import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import { useEffect, useState } from "react";
@@ -8,15 +8,73 @@ import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsCo
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 
 function Farmers() {
     const apiRef = useGridApiRef();
-    const [farmers, setFarmers] = useState([]);
-    const access_token = useSelector((state) => state.data.access_token)
     const isCooperative = useSelector((state) => state.data.isCooperative)
+    const access_token = useSelector((state) => state.data.access_token)
+    
+    const [farmers, setFarmers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [farmer, setFarmer] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
+    const [loadDetails, setLoadDetails] = useState(false);
+    
     const controller = new AbortController();
+    const navigate = useNavigate();
+    
+    const handleLoadDetails = (row) => {
+        setLoadDetails(true);
+        loadModalContent(row.id);
+    };
+    
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setFarmer(null);
+    };
+
+    const handleButtonClick = (id) => {
+        // Handle button click logic here
+        console.log(id);
+        };
+
+    function loadModalContent(id) {
+        oligesManagementApi.get(`farmer/${id}`, { bearerToken: access_token })
+            .then((response) => {
+                setFarmer(response.data.data.farmer);
+                setOpenModal(true);
+                setLoadDetails(false);
+            })
+            .catch(() => {
+                setLoadDetails(false);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            })
+    }
+
+    const ModalContent = () => (
+        <StyledPaper>
+            <InfoTypography variant="h6">ID: {farmer?.id}</InfoTypography>
+            <InfoTypography>Name: {farmer?.name}</InfoTypography>
+            <InfoTypography>Email: {farmer?.user?.email}</InfoTypography>
+            <InfoTypography>Phone number: {farmer?.phone_number}</InfoTypography>
+            <InfoTypography>Mobile number: {farmer?.mobile_number}</InfoTypography>
+
+            <InfoTypography>
+                Address: {farmer?.address.road_type} {farmer?.address.road_name} {farmer?.address.road_number} 
+                        {farmer?.address.road_letter} {farmer?.address.road_km} {farmer?.address.block} 
+                        {farmer?.address.portal} {farmer?.address.stair} {farmer?.address.floor} 
+                        {farmer?.address.door} {farmer?.address.town_entity} {farmer?.address.town_name} 
+                        {farmer?.address.province} {farmer?.address.country} {farmer?.address.postal_code}
+            </InfoTypography>
+        </StyledPaper>
+    );
 
     //Load farmers from API
     useEffect(() => {
@@ -40,9 +98,14 @@ function Farmers() {
                 setFarmers(transformedData);
                 setLoading(false);
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
                 setLoading(false);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
             })
     }, [access_token]);
 
@@ -87,10 +150,11 @@ function Farmers() {
             renderCell: (params) => (
                 <ButtonGroup variant="contained" aria-label="outlined primary button group">
                     <Tooltip title="Details" arrow>
-                        <Button    
+                        <Button
+                            loading={loadDetails}
                             variant="contained"
                             color="primary"
-                            onClick={() => handleButtonClick(params.row)}>
+                            onClick={() => handleLoadDetails(params.row)}>
                             <VisibilityIcon/>
                         </Button>
                     </Tooltip>
@@ -107,11 +171,6 @@ function Farmers() {
             ),
         },
     ];
-
-    const handleButtonClick = (id) => {
-    // Handle button click logic here
-    console.log(id);
-    };
 
     return (
         <Card sx={{ 
@@ -135,7 +194,32 @@ function Farmers() {
                 }}
                 loading={loading}
             />
+        <Modal open={openModal} onClose={handleCloseModal}>
+        <Grid
+            sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            }}
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justify="center"
+            >
+            <Grid item xs={3}>
+                <ModalContent/>
+            </Grid>      
+            </Grid>
+        </Modal>
+        <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={loadDetails}>
+            <CircularProgress color="inherit" />
+        </Backdrop>
         </Card>
+
     );
 }
 
