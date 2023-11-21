@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import {useNavigate } from "react-router-dom";
 import oligesManagementApi from '../services/apiServices';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { Box, Paper, Button, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import CooperativeInfo from '../components/RegisterFormComponents/CooperativeInfo';
-import AddressInfo from '../components/RegisterFormComponents/AddressInfo';
-import { StyledDivSVG, StyledSVG } from '../styles/FormStyles';
 import Swal from 'sweetalert2';
+import RegisterForm from '../components/RegisterFormComponents/RegisterForm';
 
 
 function FarmerRegister() { 
@@ -130,37 +126,12 @@ function FarmerRegister() {
     }
 
     return (
-        <form onSubmit={formik.handleSubmit}>
-            <Paper sx={{
-                margin: 'auto',
-                marginTop: '20px',
-                marginBottom: '20px',
-                maxWidth: '60%',
-                borderRadius: '5px',
-                boxShadow: '2px 2px 10px gray',
-                }}>
-                <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                    <Typography sx={{marginTop: '20px'}} variant="h4">
-                        Cooperative Registration Form
-                    </Typography>
-                </Box>
-                <CooperativeInfo formik={formik} />
-                <AddressInfo formik={formik} />
-                <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                    {isLoading ? 
-                        (isSuccess ? 
-                            <StyledDivSVG>
-                                <StyledSVG
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24">
-                                    <path d="M9 16.17l-4.24-4.24-1.41 1.41 5.66 5.66 12-12-1.41-1.41z" />
-                                </StyledSVG>
-                            </StyledDivSVG>
-                            : <LoadingSpinner />) 
-                        : <Button fullWidth sx={{ margin: '10px' }} variant="contained" color="primary" type="submit">Submit</Button>}
-                </Box>
-            </Paper>
-        </form>
+        <RegisterForm 
+        formik={formik} 
+        isLoading={isLoading} 
+        isSuccess={isSuccess} 
+        cooperative={true}
+        title='Cooperative Registration Form'/>
     ); 
 } 
 export default FarmerRegister; 
