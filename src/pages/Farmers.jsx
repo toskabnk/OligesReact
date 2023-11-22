@@ -1,7 +1,7 @@
-import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Snackbar, Tooltip } from "@mui/material";
+import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import oligesManagementApi from "../services/apiServices";
 import { useSelector } from "react-redux";
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
@@ -15,7 +15,10 @@ import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton
 import RegisterForm from "../components/RegisterFormComponents/RegisterForm";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
-import Alert from "../components/AlertComponent";
+import EditIcon from '@mui/icons-material/Edit';
+import EditOffIcon from '@mui/icons-material/EditOff';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import SnackbarComponent from "../components/SnackbarComponent";
 
 function Farmers() {
     const apiRef = useGridApiRef();
@@ -31,6 +34,11 @@ function Farmers() {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [showSnackBar, setShowSnackBar] = useState(false);
+    const [isEditting, setIsEditting] = useState(false);
+    const [hiddenColumns, setHiddenColumns] = useState(['actions']);
+    const [severity, setSeverity] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const snackbarRef = React.createRef();
     
     const controller = new AbortController();
     const navigate = useNavigate();
@@ -54,7 +62,45 @@ function Farmers() {
         setShowSnackBar(false);
     };
 
+    const handleRemoveFarmer = (row) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will remove the farmer from the cooperative!",
+            icon: 'warning',
+            confirmButtonText: 'Yes, remove it!',
+            showCancelButton: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                oligesManagementApi.delete(`cooperative/farmer/${row.id}`, { bearerToken: access_token })
+                    .then((response) => {
+                        console.log(response);
+                        loadFarmers();
+                        setSeverity('success');
+                        setSnackbarMessage('Farmer removed!');
+                        setShowSnackBar(true);
+                        //setShowRemovedSnackBar(true);
+                    })
+                    .catch((error) => {
+                        console.log(error.response);
+                        setSeverity('error');
+                        setSnackbarMessage('Something went wrong! Please try again later.');
+                        setShowSnackBar(true);
+                        //setShowErrorSnackBar(true)
+                    })
+            }
+        })
+    }
+
+    const toggleColumnVisibility = (columnName) => {
+        if (hiddenColumns.includes(columnName)) {
+          setHiddenColumns(hiddenColumns.filter((col) => col !== columnName));
+        } else {
+          setHiddenColumns([...hiddenColumns, columnName]);
+        }
+    };
+
     const loadFarmers = async () => {
+        setLoading(true);
         await oligesManagementApi.get('cooperative/farmers', { bearerToken: access_token, signal: controller.signal })
             .then((response) => {
                 console.log(response.data);
@@ -96,11 +142,16 @@ function Farmers() {
         //Remove empty values
         Object.keys(copyValues).forEach((key) => (copyValues[key] == null || copyValues[key] == "") && delete copyValues[key]);
 
+        if (!Object.prototype.hasOwnProperty.call(copyValues, 'partner')) {
+            copyValues.partner = false;
+        }
         await oligesManagementApi.post('farmer', copyValues, { bearerToken: access_token })
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
                 setIsSuccess(true);
+                setSeverity('success');
+                setSnackbarMessage('Farmer registered!');
                 setShowSnackBar(true);
                 formik.resetForm();
                 setIsAdding(false);
@@ -235,6 +286,31 @@ function Farmers() {
 
     const columns = [
         {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 150,
+            renderCell: (params) => (
+                <>
+                    <Tooltip title="Remove farmer" arrow>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleRemoveFarmer(params.row)}>
+                            <PersonRemoveIcon/>
+                        </Button>
+                    </Tooltip>
+                    <Tooltip title="Toggle partner" arrow>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            onClick={() => handleTogglePartner(params.row)}>
+                            <EditIcon/>
+                        </Button>
+                    </Tooltip>
+                </>
+            ),
+        },
+        {
             field: 'name',
             headerName: 'First name',
             width: 150,
@@ -260,14 +336,13 @@ function Farmers() {
             width: 150,
         },
         {
-            field: 'actions',
-            headerName: 'Actions',
+            field: 'details',
+            headerName: 'Details',
             width: 150,
             renderCell: (params) => (
                 <ButtonGroup variant="contained" aria-label="outlined primary button group">
                     <Tooltip title="Details" arrow>
                         <Button
-                            loading={loadDetails}
                             variant="contained"
                             color="primary"
                             onClick={() => handleLoadDetails(params.row)}>
@@ -295,7 +370,8 @@ function Farmers() {
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
             <GridToolbarExport />
-            <Button startIcon={<AddIcon />} variant="text" color="primary" onClick={() => setIsAdding(true)}>New Farmer</Button>
+            <Button startIcon={isEditting ? <EditOffIcon/> :<EditIcon />} variant="text" color="primary" onClick={() => {setIsEditting(!isEditting); toggleColumnVisibility('actions')}}>{isEditting ? 'Stop Edit' : 'Edit Farmers'}</Button>
+            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={() => setIsAdding(true)}>New Farmer</Button>
           </GridToolbarContainer>
         );
     }
@@ -313,8 +389,8 @@ function Farmers() {
             <DataGridPremium
                 apiRef={apiRef}
                 rows={farmers}
-                columns={columns}
-                initialState={{ pinnedColumns: { right: ['actions'] } }}
+                columns={columns.filter((col) => !hiddenColumns.includes(col.field))}
+                initialState={{ pinnedColumns: { left:['actions'], right: ['details'] } }}
                 autoPageSize
                 slots={{
                     loadingOverlay: LinearProgress,
@@ -324,22 +400,22 @@ function Farmers() {
                 loading={loading}
             />
         <Modal open={openModal} onClose={handleCloseModal}>
-        <Grid
-            sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            }}
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justify="center"
-            >
-            <Grid item xs={3}>
-                <ModalContent/>
-            </Grid>      
+            <Grid
+                sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                }}
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                >
+                <Grid item xs={3}>
+                    <ModalContent/>
+                </Grid>      
             </Grid>
         </Modal>
         <Backdrop
@@ -365,13 +441,13 @@ function Farmers() {
                     />
                 </DialogContent>
         </Dialog>
-        <Snackbar open={showSnackBar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-            <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-                Farmer registered!
-            </Alert>
-        </Snackbar>
+        <SnackbarComponent
+            ref={snackbarRef}
+            open={showSnackBar}
+            message={snackbarMessage}
+            severity={severity}
+            handleClose={handleCloseSnackbar}/>
         </Card>
-
     );
 }
 
