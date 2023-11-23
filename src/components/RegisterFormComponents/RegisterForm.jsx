@@ -4,9 +4,29 @@ import AddressInfo from "./AddressInfo"
 import { StyledDivSVG, StyledSVG } from "../../styles/FormStyles"
 import LoadingSpinner from "../LoadingSpinner"
 import CooperativeInfo from "./CooperativeInfo"
+import ExistingFarmerInfo from "./ExistingFarmerInfo"
 
+const RenderForm = ({formik, withPassword, cooperative, existingFarmer}) => {
+    if (existingFarmer) {
+        return <ExistingFarmerInfo formik={formik}/>
+    } else {
+        if (cooperative) {
+            return (
+            <>
+                <CooperativeInfo edit={withPassword} formik={formik}/>
+                <AddressInfo formik={formik} />
+            </>)
+        } else {
+            return (
+            <>
+                <PersonalInfo edit={withPassword} formik={formik}/>
+                <AddressInfo formik={formik} />
+            </>)
+        }
+    }
+}
 
-const RegisterForm = ({formik, isLoading, isSuccess, withPassword=true, cooperative=false, title='Form', checkbox=false, width='60%'}) => {
+const RegisterForm = ({formik, isLoading, isSuccess, withPassword=false, cooperative=false, title='Form', checkbox=false, width='60%', existingFarmer=false}) => {
 
     return (
         <form onSubmit={formik.handleSubmit}>
@@ -23,8 +43,7 @@ const RegisterForm = ({formik, isLoading, isSuccess, withPassword=true, cooperat
                         {title}
                     </Typography>
                 </Box>
-                {cooperative ? <CooperativeInfo edit={withPassword} formik={formik}/> : <PersonalInfo edit={withPassword} formik={formik}/>}
-                <AddressInfo formik={formik} />
+                <RenderForm formik={formik} withPassword={withPassword} cooperative={cooperative} existingFarmer={existingFarmer}/>
                 {checkbox ? <FormControlLabel sx={{margin: 'auto'}} name='partner' onChange={formik.handleChange} control={<Checkbox sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}/>} label="Partner" /> : null}
                 <Box sx={{display: 'flex', justifyContent: 'center'}}>
                     {isLoading ? 

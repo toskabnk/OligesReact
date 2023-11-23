@@ -38,6 +38,7 @@ function Farmers() {
     const [hiddenColumns, setHiddenColumns] = useState(['actions']);
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [isAddingExisting, setIsAddingExisting] = useState(false);
     const snackbarRef = React.createRef();
     
     const controller = new AbortController();
@@ -52,6 +53,20 @@ function Farmers() {
         setOpenModal(false);
         setFarmer(null);
     };
+
+    const handleAddNew = () => {
+        setIsAddingExisting(false); 
+        setIsAdding(true);
+    }
+
+    const handleAddExisting = () => {
+        setIsAddingExisting(true); 
+        setIsAdding(true);
+    }
+
+    const handleCloseDialog = () => {
+        setIsAdding(false);
+    }
 
     const handleButtonClick = (id) => {
         // Handle button click logic here
@@ -142,6 +157,7 @@ function Farmers() {
         //Remove empty values
         Object.keys(copyValues).forEach((key) => (copyValues[key] == null || copyValues[key] == "") && delete copyValues[key]);
 
+        //Add partner=false if not checked
         if (!Object.prototype.hasOwnProperty.call(copyValues, 'partner')) {
             copyValues.partner = false;
         }
@@ -153,7 +169,7 @@ function Farmers() {
                 setSeverity('success');
                 setSnackbarMessage('Farmer registered!');
                 setShowSnackBar(true);
-                formik.resetForm();
+                newFarmerFormik.resetForm();
                 setIsAdding(false);
                 loadFarmers();
             })
@@ -175,12 +191,77 @@ function Farmers() {
                         if (result.isConfirmed) {
                             //Loop through errors and set formik errors
                             Object.keys(validationErrors).forEach((key) => {
-                                formik.setFieldError(key, validationErrors[key][0]);
+                                newFarmerFormik.setFieldError(key, validationErrors[key][0]);
                             });
                         }
                     })
                 }
             })
+    }
+
+    const addExistingFarmer = async (values) => {
+        setIsLoading(true);
+
+        let copyValues = {
+            active: true,
+            ...values};
+        
+        //Add partner=false if not checked
+        if (!Object.prototype.hasOwnProperty.call(copyValues, 'partner')) {
+            copyValues.partner = false;
+        }
+
+        await oligesManagementApi.post('cooperative/farmer', copyValues, { bearerToken: access_token })
+        .then((response) => {
+            console.log(response);
+            setIsLoading(false);
+            setIsSuccess(true);
+            setSeverity('success');
+            setSnackbarMessage('Farmer added!');
+            setShowSnackBar(true);
+            existingFarmerFormik.resetForm();
+            setIsAdding(false);
+            loadFarmers();
+        })
+        .catch((error) => {
+            console.log(error.response);
+            setIsLoading(false);
+            setIsSuccess(false);
+            const responseData = error.response.data;
+            if (responseData.data && responseData.data.errors) {
+                const validationErrors = responseData.data.errors;
+                //Open sweet alert with errors
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please check the errors',
+                    icon: 'error',
+                    confirmButtonText: 'Ok',
+                    target: document.getElementById('dialog')
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        //Loop through errors and set formik errors
+                        Object.keys(validationErrors).forEach((key) => {
+                            existingFarmerFormik.setFieldError(key, validationErrors[key][0]);
+                        });
+                    }
+                })
+            } else {
+                if (responseData.data) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: responseData.data['message'],
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        target: document.getElementById('dialog')
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //Loop through errors and set formik errors
+                            existingFarmerFormik.setFieldError('email', responseData.data['message']);
+                        }
+                    })
+                }
+            }
+        })
     }
 
     function loadModalContent(id) {
@@ -231,7 +312,7 @@ function Farmers() {
         }
     }, [isCooperative]);
 
-    const formik = useFormik({
+    const newFarmerFormik = useFormik({
         initialValues: {
             name: "",
             surname: "",
@@ -281,6 +362,21 @@ function Farmers() {
         }),
         onSubmit: values => {
             register(values)
+        },
+    });
+
+    const existingFarmerFormik = useFormik({
+        initialValues: {
+            email: "",
+            dni: "",
+            partner: false,
+        },
+        validationSchema: Yup.object().shape({
+            email: Yup.string().email('Invalid email address').required('Email is required'),
+            dni: Yup.string().max(9, 'Must be 9 characters or less').required('DNI is required'),
+        }),
+        onSubmit: values => {
+            addExistingFarmer(values)
         },
     });
 
@@ -371,7 +467,8 @@ function Farmers() {
             <GridToolbarDensitySelector />
             <GridToolbarExport />
             <Button startIcon={isEditting ? <EditOffIcon/> :<EditIcon />} variant="text" color="primary" onClick={() => {setIsEditting(!isEditting); toggleColumnVisibility('actions')}}>{isEditting ? 'Stop Edit' : 'Edit Farmers'}</Button>
-            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={() => setIsAdding(true)}>New Farmer</Button>
+            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={handleAddNew}>New Farmer</Button>
+            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={handleAddExisting}>Add existing farmer</Button>
           </GridToolbarContainer>
         );
     }
@@ -426,18 +523,19 @@ function Farmers() {
         <Dialog 
             id="dialog"
             maxWidth="xl"
-            onClose={() => setIsAdding(false)}
+            onClose={handleCloseDialog}
             open={isAdding}>
                 <DialogContent>
                     <RegisterForm
-                        title="New Farmer"
+                        title={isAddingExisting ? 'Add existing farmer' : 'New farmer'}
                         withPassword={true}
                         cooperative={false}
                         isLoading={isLoading}
                         isSuccess={isSuccess}
-                        formik={formik}
+                        formik={isAddingExisting ? existingFarmerFormik : newFarmerFormik}
                         checkbox={true}
                         width="100%"
+                        existingFarmer={isAddingExisting}
                     />
                 </DialogContent>
         </Dialog>
