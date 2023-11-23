@@ -80,7 +80,7 @@ const Navbar =() => {
                                     <styled.NavBarLink to='/farmers'>Farmers</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
-                                    <styled.NavBarLink to='/'>Receipts</styled.NavBarLink>
+                                    <styled.NavBarLink to='/receipts'>Receipts</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
                                     <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>
@@ -89,7 +89,7 @@ const Navbar =() => {
                         ) : (
                             <>
                              <styled.NavBarItems>
-                                    <styled.NavBarLink to='/'>Receipts</styled.NavBarLink>
+                                    <styled.NavBarLink to='/receipts'>Receipts</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
                                     <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>
