@@ -264,6 +264,27 @@ function Farmers() {
         })
     }
 
+    const togglePartner = async (row) => {
+        await oligesManagementApi.put(`cooperative/farmer/${row.id}`, '', { bearerToken: access_token })
+            .then((response) => {
+                console.log(response);
+                setIsSuccess(true);
+                setSeverity('success');
+                setSnackbarMessage('Farmer partner status updated!');
+                setShowSnackBar(true);
+                loadFarmers();
+            })
+            .catch((error) => {
+                console.log(error.response);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Something went wrong',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+            })
+    }
+
     function loadModalContent(id) {
         oligesManagementApi.get(`farmer/${id}`, { bearerToken: access_token })
             .then((response) => {
@@ -399,7 +420,7 @@ function Farmers() {
                         <Button
                             variant="contained"
                             color="success"
-                            onClick={() => handleTogglePartner(params.row)}>
+                            onClick={() => togglePartner(params.row)}>
                             <EditIcon/>
                         </Button>
                     </Tooltip>
