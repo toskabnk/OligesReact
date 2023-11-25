@@ -10,13 +10,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import oligesManagementApi from "../services/apiServices";
+import { useNavigate } from "react-router-dom";
 
 
 function Receipts() {
     const apiRef = useGridApiRef();
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
-    
+    const navigate = useNavigate();
+
     const [loading, setLoading] = useState(false);
     const [isEditting, setIsEditting] = useState(false);
     const [receipts, setReceipts] = useState([]);
@@ -28,8 +30,7 @@ function Receipts() {
     }, [access_token]);
 
     const handleLoadDetails = (row) => {
-        //TODO: Load details
-        console.log(row)
+        navigate(`/receipt-details?id=${row.id}`)
     }
 
     const handleReceipt = (row) => {
@@ -82,13 +83,14 @@ function Receipts() {
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 150,
+            width: 100,
             renderCell: (params) => (
                 <>
                     <Tooltip title="Remove receipt" arrow>
                         <Button
                             variant="contained"
                             color="error"
+                            fullWidth
                             onClick={() => handleRemoveReceipt(params.row)}>
                             <DeleteIcon/>
                         </Button>
@@ -183,7 +185,7 @@ function Receipts() {
                     toolbar: CustomToolbar,
                 }}
                 loading={loading}
-            />   
+            />
         </Card>
         
     )
