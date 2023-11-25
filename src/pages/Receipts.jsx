@@ -11,6 +11,8 @@ import EditOffIcon from '@mui/icons-material/EditOff';
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import oligesManagementApi from "../services/apiServices";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import SnackbarComponent from "../components/SnackbarComponent";
 
 
 function Receipts() {
@@ -23,6 +25,11 @@ function Receipts() {
     const [isEditting, setIsEditting] = useState(false);
     const [receipts, setReceipts] = useState([]);
     const [hiddenColumns, setHiddenColumns] = useState(['actions']);
+    const [showSnackBar, setShowSnackBar] = useState(false);
+    const [severity, setSeverity] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    
+    const snackbarRef = React.createRef();
 
 
     useEffect(() => {
@@ -39,13 +46,39 @@ function Receipts() {
     }
 
     const handleRemoveReceipt = (row) => {
-        //TODO: Remove receipt
-        console.log(row)
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are going to remove the receipt ${row.albaran_number} from ${row.farmer_name} ${row.farmer_lastname}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, remove it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                oligesManagementApi.delete(`/receipt/${row.id}`, {bearerToken: access_token})
+                .then((response) => {
+                    setSeverity('success')
+                    setSnackbarMessage('Receipt removed successfully')
+                    setShowSnackBar(true)
+                    loadReceipts()
+                })
+                .catch((error) => {
+                    console.log(error)
+                    setSeverity('error')
+                    setSnackbarMessage('Error removing receipt')
+                    setShowSnackBar(true)
+                })
+            }
+        })
     }
 
     const handleAddNew = () => {
         //TODO: Add new receipt
     }
+
+    const handleCloseSnackbar = () => {
+        setShowSnackBar(false);
+    };
 
     const toggleColumnVisibility = (columnName) => {
         if (hiddenColumns.includes(columnName)) {
@@ -186,6 +219,12 @@ function Receipts() {
                 }}
                 loading={loading}
             />
+            <SnackbarComponent
+            ref={snackbarRef}
+            open={showSnackBar}
+            message={snackbarMessage}
+            severity={severity}
+            handleClose={handleCloseSnackbar}/>
         </Card>
         
     )
