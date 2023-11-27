@@ -102,8 +102,8 @@ const ReceiptDetails = ({width='80%'}) => {
                                             </TableRow>
 
                                             <TableRow>
+                                                <StyledTableCell align="left" colSpan={1}>{receipt.cooperative.nif}</StyledTableCell>
                                                 <StyledTableCell align="left" colSpan={1}>{receipt.cooperative.name}</StyledTableCell>
-                                                <StyledTableCell align="left" colSpan={1}>{receipt.cooperative}</StyledTableCell>
                                                 <StyledTableCell align="left" colSpan={2}>{receipt.cooperative.address.road_type} {receipt.cooperative.address.road_name} {receipt.cooperative.address.road_number} {receipt.cooperative.address.road_letter} {receipt.cooperative.address.road_km} {receipt.cooperative.address.block} {receipt.cooperative.address.portal} {receipt.cooperative.address.stair} {receipt.cooperative.address.floor} {receipt.cooperative.address.door}</StyledTableCell>
                                                 <StyledTableCell align="left" colSpan={1}>{receipt.cooperative.address.town_name}</StyledTableCell>
                                                 <StyledTableCell align="left" colSpan={1}>{receipt.cooperative.address.province}</StyledTableCell>
