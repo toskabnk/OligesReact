@@ -88,8 +88,11 @@ const Navbar =() => {
                             </>
                         ) : (
                             <>
-                             <styled.NavBarItems>
+                                <styled.NavBarItems>
                                     <styled.NavBarLink to='/receipts'>Receipts</styled.NavBarLink>
+                                </styled.NavBarItems>
+                                <styled.NavBarItems>
+                                    <styled.NavBarLink to='/cooperatives'>Cooperatives</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
                                     <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>

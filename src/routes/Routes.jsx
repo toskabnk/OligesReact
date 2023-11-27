@@ -9,6 +9,7 @@ import Farmers from '../pages/Farmers';
 import Receipts from '../pages/Receipts';
 import ReceiptDetails from '../pages/ReceiptDetails';
 import ReceiptRegister from '../pages/ReceiptRegister';
+import Cooperatives from '../pages/Cooperatives';
 
 const Routes = () => {
     return (
@@ -22,6 +23,7 @@ const Routes = () => {
         <Route path="/receipts" element={<Receipts/>} />
         <Route path="/receipt-details" element={<ReceiptDetails/>} />
         <Route path="/receipt-register" element={<ReceiptRegister/>} />
+        <Route path="/cooperatives" element={<Cooperatives/>} />
         <Route path="/" element={<Home/>} />
         </ReactRoutes>
     )
