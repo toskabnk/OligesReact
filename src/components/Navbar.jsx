@@ -95,6 +95,9 @@ const Navbar =() => {
                                     <styled.NavBarLink to='/cooperatives'>Cooperatives</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
+                                    <styled.NavBarLink to='/farms'>Farms</styled.NavBarLink>
+                                </styled.NavBarItems>
+                                <styled.NavBarItems>
                                     <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>
                                 </styled.NavBarItems>
                             </>

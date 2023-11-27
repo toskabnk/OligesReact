@@ -12,14 +12,15 @@ import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
 import SnackbarComponent from "../components/SnackbarComponent";
 
-function Cooperatives() {
+function Farms() {
     const apiRef = useGridApiRef();
+    const id = useSelector((state) => state.user.id)
     const isFarmer = useSelector((state) => state.data.isFarmer)
     const access_token = useSelector((state) => state.data.access_token)
     
-    const [cooperatives, setCooperatives] = useState([]);
+    const [farms, setFarms] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [cooperative, setCooperative] = useState(null);
+    const [farm, setFarm] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [loadDetails, setLoadDetails] = useState(false);
     const [showSnackBar, setShowSnackBar] = useState(false);
@@ -37,7 +38,7 @@ function Cooperatives() {
     
     const handleCloseModal = () => {
         setOpenModal(false);
-        setCooperative(null);
+        setFarm(null);
     };
 
     const handleButtonClick = (id) => {
@@ -49,24 +50,20 @@ function Cooperatives() {
         setShowSnackBar(false);
     };
 
-    const loadCooperatives = async () => {
+    const loadFarms = async () => {
         setLoading(true);
-        await oligesManagementApi.get('farmer/cooperatives', { bearerToken: access_token, signal: controller.signal })
+        await oligesManagementApi.get(`/farm/farmer/${id}`, { bearerToken: access_token, signal: controller.signal })
             .then((response) => {
                 console.log(response.data);
                 
-                const transformedData = response.data.data.cooperatives.map((cooperative) => ({
-                    id: cooperative.id,
-                    nif: cooperative.nif,
-                    name: cooperative.name,
-                    phone_number: cooperative.phone_number,
-                    user_id: cooperative.user_id,
-                    address_id: cooperative.address_id,
-                    email: cooperative.user.email,
-                    partner: cooperative.pivot.partner === 1 ? 'Yes' : 'No',
-                    active: cooperative.pivot.active === 1 ? 'Yes' : 'No',
+                const transformedData = response.data.data.farm.map((farm) => ({
+                    id: farm.id,
+                    name: farm.name,
+                    polygon: farm.polygon,
+                    plot: farm.plot,
+                    address: farm.address,
                 }));
-                setCooperatives(transformedData);
+                setFarms(transformedData);
                 setLoading(false);
             })
             .catch(() => {
@@ -78,9 +75,9 @@ function Cooperatives() {
     }
 
     function loadModalContent(id) {
-        oligesManagementApi.get(`cooperative/${id}`, { bearerToken: access_token })
+        oligesManagementApi.get(`farm/${id}`, { bearerToken: access_token })
             .then((response) => {
-                setCooperative(response.data.data.cooperative);
+                setFarm(response.data.data.farm);
                 setOpenModal(true);
                 setLoadDetails(false);
             })
@@ -94,24 +91,24 @@ function Cooperatives() {
 
     const ModalContent = () => (
         <StyledPaper>
-            <InfoTypography variant="h6">ID: {cooperative?.id}</InfoTypography>
-            <InfoTypography>Name: {cooperative?.name}</InfoTypography>
-            <InfoTypography>Email: {cooperative?.user?.email}</InfoTypography>
-            <InfoTypography>Phone number: {cooperative?.phone_number}</InfoTypography>
+            <InfoTypography variant="h6">ID: {farm?.id}</InfoTypography>
+            <InfoTypography>Name: {farm?.name}</InfoTypography>
+            <InfoTypography>Polygon: {farm?.polygon}</InfoTypography>
+            <InfoTypography>Plot: {farm?.plot}</InfoTypography>
 
             <InfoTypography>
-                Address: {cooperative?.address.road_type} {cooperative?.address.road_name} {cooperative?.address.road_number} 
-                        {cooperative?.address.road_letter} {cooperative?.address.road_km} {cooperative?.address.block} 
-                        {cooperative?.address.portal} {cooperative?.address.stair} {cooperative?.address.floor} 
-                        {cooperative?.address.door} {cooperative?.address.town_entity} {cooperative?.address.town_name} 
-                        {cooperative?.address.province} {cooperative?.address.country} {cooperative?.address.postal_code}
+                Address: {farm?.address.road_type} {farm?.address.road_name} {farm?.address.road_number} 
+                        {farm?.address.road_letter} {farm?.address.road_km} {farm?.address.block} 
+                        {farm?.address.portal} {farm?.address.stair} {farm?.address.floor} 
+                        {farm?.address.door} {farm?.address.town_entity} {farm?.address.town_name} 
+                        {farm?.address.province} {farm?.address.country} {farm?.address.postal_code}
             </InfoTypography>
         </StyledPaper>
     );
 
     //Load farmers from API
     useEffect(() => {
-        loadCooperatives()
+        loadFarms()
     }, [access_token]);
 
     useEffect(() => {
@@ -124,28 +121,18 @@ function Cooperatives() {
     const columns = [
         {
             field: 'name',
-            headerName: 'Cooperative Name',
+            headerName: 'Farm Name',
             width: 300,
         },
         {
-            field: 'email',
-            headerName: 'Email',
-            width: 300,
-        },
-        {
-            field: 'nif',
-            headerName: 'Cooperative NIF',
+            field: 'polygon',
+            headerName: 'Polygon',
             width: 200,
         },
         {
-            field: 'partner',
-            headerName: 'Partner',
-            width: 150,
-        },
-        {
-            field: 'active',
-            headerName: 'Active',
-            width: 150,
+            field: 'plot',
+            headerName: 'Plot',
+            width: 200,
         },
         {
             field: 'details',
@@ -198,7 +185,7 @@ function Cooperatives() {
         }}>
             <DataGridPremium
                 apiRef={apiRef}
-                rows={cooperatives}
+                rows={farms}
                 columns={columns}
                 initialState={{ pinnedColumns: { right: ['details'] } }}
                 autoPageSize
@@ -243,4 +230,4 @@ function Cooperatives() {
     );
 }
 
-export default Cooperatives;
+export default Farms;
