@@ -73,7 +73,7 @@ function Receipts() {
     }
 
     const handleAddNew = () => {
-        //TODO: Add new receipt
+        navigate('/receipt-register')
     }
 
     const handleCloseSnackbar = () => {

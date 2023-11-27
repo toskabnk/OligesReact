@@ -8,6 +8,7 @@ import Profile from '../pages/Profile';
 import Farmers from '../pages/Farmers';
 import Receipts from '../pages/Receipts';
 import ReceiptDetails from '../pages/ReceiptDetails';
+import ReceiptRegister from '../pages/ReceiptRegister';
 
 const Routes = () => {
     return (
@@ -20,6 +21,7 @@ const Routes = () => {
         <Route path="/farmers" element={<Farmers/>} />
         <Route path="/receipts" element={<Receipts/>} />
         <Route path="/receipt-details" element={<ReceiptDetails/>} />
+        <Route path="/receipt-register" element={<ReceiptRegister/>} />
         <Route path="/" element={<Home/>} />
         </ReactRoutes>
     )
