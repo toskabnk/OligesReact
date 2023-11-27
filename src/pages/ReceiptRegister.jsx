@@ -3,13 +3,14 @@ import { useFormik } from "formik";
 import * as Yup from 'yup';
 import LoadingSpinner from "../components/LoadingSpinner";
 import { StyledDivSVG, StyledSVG } from "../styles/FormStyles";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import oligesManagementApi from "../services/apiServices";
 import { useSelector } from "react-redux";
 import FormikTextField from "../components/FormikTextField";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import SignatureCanvas from 'react-signature-canvas'
+import SnackbarComponent from "../components/SnackbarComponent";
 
 const ReceiptRegister = () => {
     const access_token = useSelector((state) => state.data.access_token)
@@ -31,6 +32,10 @@ const ReceiptRegister = () => {
     const [campaign, setCampaign] = useState('');
     const [totalKg, setTotalKg] = useState(0);
     const [tareKg, setTareKg] = useState(0);
+    const [showSnackBar, setShowSnackBar] = useState(false);
+    const [severity, setSeverity] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const snackbarRef = React.createRef();
 
     const canvasRef = useRef();
 
@@ -43,6 +48,9 @@ const ReceiptRegister = () => {
         })
         .catch(error => {
             console.log(error)
+            setSeverity('error');
+            setSnackbarMessage('Error loading farmers, try again later');
+            setShowSnackBar(true);
         })
     }
 
@@ -60,6 +68,10 @@ const ReceiptRegister = () => {
         })
         .catch(error => {
             console.log(error)
+            setSeverity('error');
+            setSnackbarMessage('Error loading farmer farms, try again later');
+            setShowSnackBar(true);
+            setLoadingFarmersFarms(false)
         })
     }
 
@@ -77,6 +89,9 @@ const ReceiptRegister = () => {
         })
         .catch(error => {
             console.log(error)
+            setSeverity('error');
+            setSnackbarMessage('Error loading last receipt, try again later');
+            setShowSnackBar(true);
         })
     }
 
@@ -100,10 +115,16 @@ const ReceiptRegister = () => {
         .then(response => {
             console.log(response)
             setIsSuccess(true)
+            setSeverity('success');
+            setSnackbarMessage('Receipt registered successfully');
+            setShowSnackBar(true);
         })
         .catch(error => {
             console.log(error)
             setIsLoading(false)
+            setSeverity('error');
+            setSnackbarMessage('Error registering receipt, try again later');
+            setShowSnackBar(true);
         })
     }
 
@@ -115,6 +136,10 @@ const ReceiptRegister = () => {
     useEffect(() => {
         loadFarmersFarms();
     }, [farmerSelected])
+
+    const handleCloseSnackbar = () => {
+        setShowSnackBar(false);
+    };
 
     const columns = [
         {
@@ -171,7 +196,8 @@ const ReceiptRegister = () => {
         validationSchema: Yup.object({
             farmer_id: Yup.string().required('Required'),
             farm_id: Yup.string().required('Required'),
-            weights: Yup.array().min(1, 'Required'),
+            weights: Yup.array().min(1, 'You must add at least one weight'),
+            sign: Yup.string().required('Required'),
         }),
         onSubmit: values => {
             if (!canvasRef.current.isEmpty()) {
@@ -181,6 +207,8 @@ const ReceiptRegister = () => {
               }
         },
     });
+
+    const { errors, touched } = formik;
 
     const weightFormik = useFormik({
         initialValues: {
@@ -195,7 +223,7 @@ const ReceiptRegister = () => {
         },
         validationSchema: Yup.object({
             type: Yup.string().max(10, 'Must be 10 characters or less').required('Required'),
-            kilos: Yup.number().required('Required'),
+            kilos: Yup.number().required('Required').positive().min(1, 'Must be greater than 0'),
             sampling: Yup.number(),
             container: Yup.number(),
             purple_percentage: Yup.number(),
@@ -299,6 +327,8 @@ const ReceiptRegister = () => {
                                     <TextField
                                     {...params}
                                     label="Farmer"
+                                    error={formik.touched['farmer_id'] && Boolean(formik.errors['farmer_id'])}
+                                    helperText={formik.touched['farmer_id'] && formik.errors['farmer_id']}
                                     inputProps={{
                                         ...params.inputProps
                                     }}
@@ -331,8 +361,8 @@ const ReceiptRegister = () => {
                                 renderInput={(params) => (
                                     <TextField
                                     {...params}
-                                    error
-                                    helperText="Incorrect entry."
+                                    error={formik.touched['farmer_id'] && Boolean(formik.errors['farmer_id'])}
+                                    helperText={formik.touched['farmer_id'] && formik.errors['farmer_id']}
                                     label="Farmer DNI"
                                     inputProps={{
                                         ...params.inputProps
@@ -368,6 +398,8 @@ const ReceiptRegister = () => {
                                     <TextField
                                     {...params}
                                     label="Farm"
+                                    error={formik.touched['farm_id'] && Boolean(formik.errors['farm_id'])}
+                                    helperText={formik.touched['farm_id'] && formik.errors['farm_id']}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -501,16 +533,27 @@ const ReceiptRegister = () => {
                             columns={columns}
                             autoHeight
                             slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-                            sx={{ '--DataGrid-overlayHeight': '300px' }}/>
+                            sx={{ '--DataGrid-overlayHeight': '300px', border: errors['weights'] ?  '1px solid red' : '1px solid'}}/>
+                            {/* Mensajes de error debajo del DataGrid */}
+                            {errors['weights'] && (
+                                <div style={{ color: 'red', marginTop: '8px' }}>
+                                {errors['weights']}
+                                </div>
+                            )}
                         </Box>
                         <Box sx={{margin: '15px',  display: 'flex', flexDirection: 'column', pb:2}}>
                             <Box sx={{display: 'flex', justifyContent: 'center'}}>
                                 <Typography  sx={{marginTop: '20px'}} variant="h4">
                                     Sign
                                 </Typography>
+                                <Typography  sx={{marginTop: '20px', marginLeft: '10px', color: 'red'}} variant="h7">
+                                {errors['sign'] && touched['sign'] ? (
+                                    errors['sign']
+                                ) : null}
+                                </Typography>
                             </Box>
                             <Box sx={{display: 'flex', justifyContent: 'center'}}>
-                                <div style={{ border: '1px solid #000'}}>
+                                <div style={{ border: errors['sign'] && touched['sign'] ? '1px solid red' : '1px solid'}}>
                                 <SignatureCanvas
                                     ref={canvasRef}
                                     onEnd={() => formik.setFieldValue('sign', canvasRef.current.toDataURL())}
@@ -533,6 +576,12 @@ const ReceiptRegister = () => {
                         :   <LoadingSpinner />)
                     :   <Button sx={{ margin: '10px', width:'95%' }} variant="contained" color="primary" form='receiptForm' type="submit">Register receipt</Button>}
                 </Box>
+                <SnackbarComponent
+                    ref={snackbarRef}
+                    open={showSnackBar}
+                    message={snackbarMessage}
+                    severity={severity}
+                    handleClose={handleCloseSnackbar}/>
             </Paper>
             }
         </>
