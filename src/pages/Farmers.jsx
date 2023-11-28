@@ -19,6 +19,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import SnackbarComponent from "../components/SnackbarComponent";
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import PersonIcon from '@mui/icons-material/Person';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
 
 function Farmers() {
     const apiRef = useGridApiRef();
@@ -412,17 +415,17 @@ function Farmers() {
                     <Tooltip title="Remove farmer" arrow>
                         <Button
                             variant="contained"
-                            color="error"
+                            color={params.row.active === 'Yes' ? 'error' : 'success'}
                             onClick={() => handleRemoveFarmer(params.row)}>
-                            <PersonRemoveIcon/>
+                            {params.row.active === 'Yes' ? <PersonRemoveIcon/> : <PersonAddAlt1Icon/>}
                         </Button>
                     </Tooltip>
                     <Tooltip title="Toggle partner" arrow>
                         <Button
                             variant="contained"
-                            color="success"
+                            color={params.row.partner === 'Yes' ? 'error' : 'success'}
                             onClick={() => togglePartner(params.row)}>
-                            <EditIcon/>
+                            {params.row.partner === 'Yes' ? <PersonOffIcon/> : <PersonIcon/>}
                         </Button>
                     </Tooltip>
                 </>
