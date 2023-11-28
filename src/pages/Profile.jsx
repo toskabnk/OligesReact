@@ -1,5 +1,5 @@
 import { Backdrop, CircularProgress } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
 import AddressInfo from "../components/RegisterFormComponents/AddressInfo";
@@ -9,6 +9,8 @@ import EditCardComponent from "../components/ProfileComponents/EditCardComponent
 import { useSelector } from "react-redux";
 import oligesManagementApi from "../services/apiServices";
 import Swal from "sweetalert2";
+import PasswordInfo from "../components/RegisterFormComponents/PasswordInfo";
+import SnackbarComponent from "../components/SnackbarComponent";
 
 function Profile() { 
     const [loading, setLoading] = useState(true); 
@@ -17,6 +19,15 @@ function Profile() {
     const [error, setError] = useState(false);
     const [id, setId] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [openPassword, setOpenPassword] = useState(false);
+    const [errorPassword, setErrorPassword] = useState(false);
+    const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+    const [showSnackBar, setShowSnackBar] = useState(false);
+    const [severity, setSeverity] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    
+    const snackbarRef = React.createRef();
+
 
     const access_token = useSelector((state) => state.data.access_token)
     const isCooperative = useSelector((state) => state.data.isCooperative)
@@ -168,6 +179,65 @@ function Profile() {
         },
     });
 
+    const passwordInfo = useFormik({
+        initialValues: {
+            old_password: "",
+            new_password: "",
+            new_password_confirmation: "",
+        },
+        validationSchema: Yup.object().shape({
+            old_password: Yup.string().required('Old password is required').min(8, 'Must be 8 characters or more'),
+            new_password: Yup.string().required('New password is required').min(8, 'Must be 8 characters or more'),
+            new_password_confirmation: Yup.string().min(8, 'Must be 8 characters or more').oneOf([Yup.ref('new_password'), null], 'Passwords must match').required('Password confirmation is required'),
+        }),
+        onSubmit: values => {
+            updatePassword(values);
+        },
+    });
+
+    async function updatePassword(values) {
+        setIsLoadingPassword(true);
+        //Copy values into a clean object
+        await oligesManagementApi.put('password', values, { bearerToken: access_token })
+            .then((response) => {
+                setIsLoadingPassword(false);
+                setSeverity('success');
+                setSnackbarMessage('Password updated successfully');
+                setShowSnackBar(true);
+                passwordInfo.resetForm();
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingPassword(false);
+                const responseData = error.response.data;
+                if (responseData.data && responseData.data.errors) {
+                    const validationErrors = responseData.data.errors;
+                    //Open sweet alert with errors
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Please check the errors',
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //Loop through errors and set formik errors
+                            Object.keys(validationErrors).forEach((key) => {
+                                passwordInfo.setFieldError(key, validationErrors[key][0]);
+                            });
+                        }
+                    })
+                }else {
+                    if(responseData.data.message == 'Invalid credentials.') {
+                        setSeverity('error');
+                        setSnackbarMessage('Invalid password');
+                        setShowSnackBar(true);
+                        passwordInfo.setFieldError('old_password', 'Invalid password');
+                    }
+                }
+            })
+    }
+
+
     async function update(values) {
         setIsLoading(true);
         //Copy values into a clean object
@@ -219,6 +289,10 @@ function Profile() {
             })
     }
 
+    const handleCloseSnackbar = () => {
+        setShowSnackBar(false);
+    };
+
     return ( 
         <> 
             <Backdrop
@@ -239,8 +313,7 @@ function Profile() {
                 setOpen={setOpenPersonal}
                 info={isCooperative ? cooperativeInfo : personalInfo}
                 error={error}
-                isLoading={isLoading}
-            >
+                isLoading={isLoading}>
                 {isCooperative ? <CooperativeInfo edit={true} formik={cooperativeInfo}/> : <PersonalInfo edit={true} formik={personalInfo}/>}
             </EditCardComponent>
             <EditCardComponent
@@ -249,10 +322,24 @@ function Profile() {
                 setOpen={setOpenAddress}
                 info={addressInfo}
                 error={error}
-                isLoading={isLoading}
-                >
+                isLoading={isLoading}>
                 <AddressInfo formik={addressInfo}/>
-                </EditCardComponent>
+            </EditCardComponent>
+            <EditCardComponent
+                title='Change Password'
+                open={openPassword}
+                setOpen={setOpenPassword}
+                info={passwordInfo}
+                error={errorPassword}
+                isLoading={isLoadingPassword}>
+                <PasswordInfo formik={passwordInfo}/>
+            </EditCardComponent>
+            <SnackbarComponent
+            ref={snackbarRef}
+            open={showSnackBar}
+            message={snackbarMessage}
+            severity={severity}
+            handleClose={handleCloseSnackbar}/>
         </> 
     ); 
 } 
