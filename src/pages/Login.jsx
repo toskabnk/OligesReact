@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Container, FormGroup, Switch, Typography } from '@mui/material';
+import { Box, Container, FormGroup, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import FormikTextField from '../components/FormikTextField';
 import { useNavigate } from 'react-router-dom';
-import LoadingSpinner from '../components/LoadingSpinner';
 import oligesManagementApi from '../services/apiServices';
 import Swal from 'sweetalert2';
 import { addUser } from '../redux/userSlice';
@@ -14,7 +13,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 
 function Login() {
-    const [checked, setChecked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const access_token = useSelector((state) => state.data.access_token)
@@ -46,9 +44,7 @@ function Login() {
     async function login(values) {
         setIsLoading(true);
 
-        let apiURL = checked ? 'auth/cooperative/login' : 'auth/farmer/login';
-
-        await oligesManagementApi.post(apiURL, values)
+        await oligesManagementApi.post("auth/login", values)
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
@@ -56,7 +52,9 @@ function Login() {
                 let token = response.data.data.access_token;
                 let user = response.data.data.user;
 
-                let detail = checked ? user.cooperative : user.farmer;
+                let detail = user.cooperative ? user.cooperative : user.farmer;
+
+                let checked = user.cooperative ? true : false;
 
                 let userData = {
                     id: detail.id,
@@ -71,18 +69,9 @@ function Login() {
 
                 dispatch(addUser(userData));
                 dispatch(addData(data));
+                
+                navigate('/');
 
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'You have been logged in successfully',
-                    icon: 'success',
-                    confirmButtonText: 'Ok'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        //Loop through errors and set formik errors
-                        navigate('/');
-                    }
-                })
             })
             .catch((error) => {
                 console.log(error);
@@ -96,10 +85,6 @@ function Login() {
             })
 
     }
-    
-    const handleChange = (event) => {
-        setChecked(event.target.checked);
-    };
 
     return (
       <form onSubmit={formik.handleSubmit}>
@@ -166,36 +151,6 @@ function Login() {
                     borderRadius: "5px",
                   }}
                 />
-              </FormGroup>
-              <FormGroup
-                sx={{
-                  flexDirection: "row",
-                  mt: 1,
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  color="text.primary"
-                  sx={{ fontSize: "0.875rem" }}
-                >
-                  Farmer
-                </Typography>
-                <Switch
-                  name="isCooperative"
-                  id="isCooperative"
-                  checked={checked}
-                  onChange={handleChange}
-                  inputProps={{ "aria-label": "controlled" }}
-                />
-                <Typography
-                  variant="body2"
-                  color="text.primary"
-                  sx={{ fontSize: "0.875rem" }}
-                >
-                  Cooperative
-                </Typography>
               </FormGroup>
               <LoadingButton
                     loading={isLoading}
