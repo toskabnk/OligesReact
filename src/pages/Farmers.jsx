@@ -66,6 +66,7 @@ function Farmers() {
 
     const handleCloseDialog = () => {
         setIsAdding(false);
+        setIsSuccess(false);
     }
 
     const handleButtonClick = (id) => {

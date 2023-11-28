@@ -1,4 +1,4 @@
-import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
+import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from "react";
@@ -11,6 +11,11 @@ import { useNavigate } from "react-router-dom";
 import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
 import SnackbarComponent from "../components/SnackbarComponent";
+import AddIcon from '@mui/icons-material/Add';
+import FarmForm from "../components/RegisterFormComponents/FarmForm";
+import { useFormik } from "formik";
+import * as Yup from 'yup';
+import Swal from "sweetalert2";
 
 function Farms() {
     const apiRef = useGridApiRef();
@@ -26,6 +31,9 @@ function Farms() {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [isAdding, setIsAdding] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const snackbarRef = React.createRef();
     
     const controller = new AbortController();
@@ -49,6 +57,15 @@ function Farms() {
     const handleCloseSnackbar = () => {
         setShowSnackBar(false);
     };
+
+    const handleAddNew = () => {
+        setIsAdding(true);
+    };
+
+    const handleCloseDialog = () => {
+        setIsAdding(false);
+        setIsSuccess(false);
+    }
 
     const loadFarms = async () => {
         setLoading(true);
@@ -74,6 +91,44 @@ function Farms() {
             })
     }
 
+    const postData = async (values) => {
+        setIsLoading(true);
+        await oligesManagementApi.post(`/farm/${id}`, values, { bearerToken: access_token })
+            .then((response) => {
+                console.log(response.data);
+                setIsLoading(false);
+                setIsSuccess(true);
+                formik.resetForm();
+                setSnackbarMessage('Farm created successfully');
+                setSeverity('success');
+                setShowSnackBar(true);
+                loadFarms();
+                setIsAdding(false);
+            })
+            .catch((error) => {
+                setIsLoading(false);
+                const responseData = error.response.data;
+                if (responseData.data && responseData.data.errors) {
+                    const validationErrors = responseData.data.errors;
+                    //Open sweet alert with errors
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Please check the errors',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        target: document.getElementById('dialog')
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            //Loop through errors and set formik errors
+                            Object.keys(validationErrors).forEach((key) => {
+                                formik.setFieldError(key, validationErrors[key][0]);
+                            });
+                        }
+                    })
+                }
+            })
+    }
+
     function loadModalContent(id) {
         oligesManagementApi.get(`farm/${id}`, { bearerToken: access_token })
             .then((response) => {
@@ -88,6 +143,52 @@ function Farms() {
                 setShowSnackBar(true);
             })
     }
+
+    const formik = useFormik({
+        initialValues: {
+            name: '',
+            polygon: '',
+            plot: '',
+            road_type: '',
+            road_name: '',
+            road_number: '',
+            road_letter: '',
+            road_km: '',
+            block: '',
+            portal: '',
+            stair: '',
+            floor: '',
+            door: '',
+            town_entity: '',
+            town_name: '',
+            province: '',
+            country: '',
+            postal_code: '',
+        },
+        validationSchema: Yup.object().shape({
+            name: Yup.string().required('Required').max(150, 'Must be 150 characters or less'),
+            polygon: Yup.string().required('Required').max(10, 'Must be 10 characters or less'),
+            plot: Yup.string().required('Required').max(10, 'Must be 10 characters or less'),
+            road_type: Yup.string().max(30, 'Must be 30 characters or less').required('Road type is required'),
+            road_name: Yup.string().max(150, 'Must be 150 characters or less').required('Road name is required'),
+            road_number: Yup.string().max(5, 'Must be 5 characters or less').required('Road number is required'),
+            road_letter: Yup.string().max(5, 'Must be 5 characters or less'),
+            road_km: Yup.string().max(10, 'Must be 10 characters or less'),
+            block: Yup.string().max(10, 'Must be 10 characters or less'),
+            portal: Yup.string().max(10, 'Must be 10 characters or less'),
+            stair: Yup.string().max(10, 'Must be 10 characters or less'),
+            floor: Yup.string().max(5, 'Must be 5 characters or less'),
+            door: Yup.string().max(5, 'Must be 5 characters or less'),
+            town_entity: Yup.string().max(50, 'Must be 50 characters or less'),
+            town_name: Yup.string().max(50, 'Must be 50 characters or less').required('Town name is required'),
+            province: Yup.string().max(50, 'Must be 50 characters or less').required('Province is required'),
+            country: Yup.string().max(50, 'Must be 50 characters or less').required('Country is required'),
+            postal_code: Yup.string().max(5, 'Must be 5 characters or less').required('Postal code is required'),
+        }),
+        onSubmit: (values) => {
+            postData(values);
+        },
+    });
 
     const ModalContent = () => (
         <StyledPaper>
@@ -169,6 +270,7 @@ function Farms() {
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
             <GridToolbarExport />
+            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={handleAddNew}>New Farm</Button>
           </GridToolbarContainer>
         );
     }
@@ -226,6 +328,18 @@ function Farms() {
             message={snackbarMessage}
             severity={severity}
             handleClose={handleCloseSnackbar}/>
+        <Dialog 
+            id="dialog"
+            maxWidth="xl"
+            onClose={handleCloseDialog}
+            open={isAdding}>
+                <DialogContent>
+                    <FarmForm
+                    formik={formik}
+                    isLoading={isLoading}
+                    isSuccess={isSuccess}/>
+                </DialogContent>
+        </Dialog>
         </Card>
     );
 }
