@@ -509,7 +509,16 @@ function Farmers() {
                 apiRef={apiRef}
                 rows={farmers}
                 columns={columns.filter((col) => !hiddenColumns.includes(col.field))}
-                initialState={{ pinnedColumns: { left:['actions'], right: ['details'] } }}
+                initialState={{ 
+                    filter: { 
+                        filterModel: {
+                            items: [{ field: 'active', operator: 'equals', value: 'Yes' }] },
+                    },
+                    pinnedColumns: { 
+                        left:['actions'], 
+                        right: ['details'] 
+                    } 
+                }}
                 autoPageSize
                 slots={{
                     loadingOverlay: LinearProgress,
