@@ -164,10 +164,13 @@ const ReceiptDetails = ({width='80%'}) => {
                                             <StyledTableCellGrey align="center" colSpan={3}><strong>Farmer Sign</strong></StyledTableCellGrey>
                                         </TableRow>
                                         <TableRow>
-                                            <StyledTableCell align="center" colSpan={3} rowSpan={3}>Test</StyledTableCell>
+                                            {receipt.cooperative.cooperative_sign ? 
+                                                <StyledTableCell align="center" colSpan={3} rowSpan={3}><img src={receipt.cooperative.cooperative_sign} alt="Imagen en base64"/></StyledTableCell>
+                                                :
+                                                <StyledTableCell align="center" colSpan={3} rowSpan={3}>No sign</StyledTableCell>
+                                            }
                                             <StyledTableCell align="center" colSpan={3 }rowSpan={3}><img src={receipt.sign} alt="Imagen en base64"/></StyledTableCell>
                                         </TableRow>
-
                                     </TableBody>
                                 </Table>
                             </TableContainer>

@@ -1,5 +1,5 @@
-import { Backdrop, CircularProgress } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { Backdrop, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
 import AddressInfo from "../components/RegisterFormComponents/AddressInfo";
@@ -11,22 +11,27 @@ import oligesManagementApi from "../services/apiServices";
 import Swal from "sweetalert2";
 import PasswordInfo from "../components/RegisterFormComponents/PasswordInfo";
 import SnackbarComponent from "../components/SnackbarComponent";
+import SignatureCanvas from 'react-signature-canvas'
 
 function Profile() { 
     const [loading, setLoading] = useState(true); 
     const [openPersonal, setOpenPersonal] = useState(false); 
     const [openAddress, setOpenAddress] = useState(false);
+    const [openSignature, setOpenSignature] = useState(false);
     const [error, setError] = useState(false);
     const [id, setId] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [openPassword, setOpenPassword] = useState(false);
     const [errorPassword, setErrorPassword] = useState(false);
     const [isLoadingPassword, setIsLoadingPassword] = useState(false);
+    const [isLoadingSign, setIsLoadingSign] = useState(false);
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [signValue, setSignValue] = useState(null);
     
     const snackbarRef = React.createRef();
+    const canvasRef = useRef();
 
 
     const access_token = useSelector((state) => state.data.access_token)
@@ -36,6 +41,7 @@ function Profile() {
         async function loadData() {
             await oligesManagementApi.get('profile', { bearerToken: access_token })
                 .then((response) => {
+                    console.log(response);
                     const data = response.data.data;
                     setOpenPersonal(true);
                     setLoading(false);
@@ -66,6 +72,10 @@ function Profile() {
 
                     if(type === 'cooperative') {
                         setId(data.cooperative.id);
+                        if(data.cooperative.cooperative_sign) {
+                            signInfo.setFieldValue('cooperative_sign', data.cooperative.cooperative_sign);
+                            setSignValue(data.cooperative.cooperative_sign);
+                        }
                     } else {
                         setId(data.farmer.id);
                     }
@@ -195,6 +205,26 @@ function Profile() {
         },
     });
 
+    const signInfo = useFormik({
+        initialValues: {
+            cooperative_sign: '',
+        },
+        validationSchema: Yup.object({
+            cooperative_sign: Yup.string().required('Signature is required'),
+        }),
+        onSubmit: values => {
+            if (!canvasRef.current.isEmpty()) {
+                addSignature(values)
+              } else {
+                console.log('Signature is empty');
+                signInfo.setFieldError('cooperative_sign', 'Signature is required');
+            }
+            console.log(signInfo.errors);
+        }
+    });
+
+    const { errors, touched } = signInfo;
+
     async function updatePassword(values) {
         setIsLoadingPassword(true);
         //Copy values into a clean object
@@ -234,6 +264,27 @@ function Profile() {
                         passwordInfo.setFieldError('old_password', 'Invalid password');
                     }
                 }
+            })
+    }
+
+    async function addSignature(values) {
+        setIsLoadingSign(true);
+        const url = `cooperative/signature`;
+        await oligesManagementApi.post(url, values, { bearerToken: access_token })
+            .then((response) => {
+                setIsLoadingSign(false);
+                setSeverity('success');
+                setSnackbarMessage('Signature updated successfully');
+                setShowSnackBar(true);
+                signInfo.resetForm();
+                setSignValue(values.cooperative_sign);
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoadingSign(false);
+                setSeverity('error');
+                setSnackbarMessage('Error updating signature');
+                setShowSnackBar(true);
             })
     }
 
@@ -334,6 +385,36 @@ function Profile() {
                 isLoading={isLoadingPassword}>
                 <PasswordInfo formik={passwordInfo}/>
             </EditCardComponent>
+            {isCooperative ? 
+                <EditCardComponent
+                    title='Cooperative Signature'
+                    open={openSignature}
+                    setOpen={() => {setOpenSignature(!openSignature)}}
+                    info={signInfo}
+                    error={error}
+                    isLoading={isLoadingSign}>
+                    <Box sx={{margin: '15px',  display: 'flex', flexDirection: 'column', pb:2}}>
+                        <Box sx={{display: 'flex', justifyContent: 'center'}}>
+                                    <Typography  sx={{marginTop: '20px', marginLeft: '10px', color: 'red'}} variant="h7">
+                                    {errors['cooperative_sign'] && touched['cooperative_sign'] ? (
+                                        errors['cooperative_sign']
+                                    ) : null}
+                                    </Typography>
+                        </Box>
+                        <Box sx={{margin: '10px',  display: 'flex', flexDirection: 'column', pt: 2 }}>
+                            <Stack direction="row" sx={{display:'flex', justifyContent:'center'}}>
+                                {signValue ? <img src={signValue} alt="Imagen en base64"/> : <p style={{marginRight: '90px', marginTop: '80px'}}>No actual sign</p>}
+                                <div style={{ border: errors['cooperative_sign'] && touched['cooperative_sign'] ? '1px solid red' : '1px solid'}}>
+                                    <SignatureCanvas
+                                        ref={canvasRef}
+                                        onEnd={() => signInfo.setFieldValue('cooperative_sign', canvasRef.current.toDataURL())}
+                                        canvasProps={{width: 320, height: 180}}/>
+                                </div>
+                            </Stack>
+                        </Box>
+                    </Box>
+                </EditCardComponent>
+            : null}
             <SnackbarComponent
             ref={snackbarRef}
             open={showSnackBar}
