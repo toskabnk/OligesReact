@@ -3,7 +3,7 @@ import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from "react";
 import oligesManagementApi from "../services/apiServices";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -22,12 +22,14 @@ import SnackbarComponent from "../components/SnackbarComponent";
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
+import { addFarmers } from "../redux/cacheSlice";
 
 function Farmers() {
     const apiRef = useGridApiRef();
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
-    
+    const { farmersCache, farmersValid} = useSelector((state) => state.cache);
+
     const [farmers, setFarmers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [farmer, setFarmer] = useState(null);
@@ -46,6 +48,7 @@ function Farmers() {
     
     const controller = new AbortController();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     
     const handleLoadDetails = (row) => {
         setLoadDetails(true);
@@ -120,6 +123,16 @@ function Farmers() {
 
     const loadFarmers = async () => {
         setLoading(true);
+        if(farmersValid && farmersCache.length) {
+            let cacheValid = new Date(farmersValid);
+            let now = new Date();
+            if(now < cacheValid){
+                setFarmers(farmersCache);
+                console.log('Farmers loaded from cache');
+            } else {
+                console.log('Farmers cache expired');
+            }
+        }
         await oligesManagementApi.get('cooperative/farmers', { bearerToken: access_token, signal: controller.signal })
             .then((response) => {
                 console.log(response.data);
@@ -138,6 +151,14 @@ function Farmers() {
                     active: farmer.pivot.active === 1 ? 'Yes' : 'No',
                 }));
                 setFarmers(transformedData);
+                let actualDate = new Date();
+                actualDate.setMinutes(actualDate.getMinutes() + 15);
+                let date = actualDate.toISOString();
+                let cacheDate = {
+                    farmers: transformedData,
+                    date: date
+                }
+                dispatch(addFarmers(cacheDate))
                 setLoading(false);
             })
             .catch(() => {

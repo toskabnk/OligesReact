@@ -202,6 +202,7 @@ const ReceiptRegister = () => {
         onSubmit: values => {
             if (!canvasRef.current.isEmpty()) {
                 sendReceipt(values)
+                console.log(values)
               } else {
                 console.log('Signature is empty');
               }

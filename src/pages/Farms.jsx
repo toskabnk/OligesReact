@@ -3,7 +3,7 @@ import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from "react";
 import oligesManagementApi from "../services/apiServices";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -16,12 +16,14 @@ import FarmForm from "../components/RegisterFormComponents/FarmForm";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import Swal from "sweetalert2";
+import { addFarms } from "../redux/cacheSlice";
 
 function Farms() {
     const apiRef = useGridApiRef();
     const id = useSelector((state) => state.user.id)
     const isFarmer = useSelector((state) => state.data.isFarmer)
     const access_token = useSelector((state) => state.data.access_token)
+    const { farmsCache, farmsValid } = useSelector((state) => state.cache);
     
     const [farms, setFarms] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,6 +40,7 @@ function Farms() {
     
     const controller = new AbortController();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     
     const handleLoadDetails = (row) => {
         setLoadDetails(true);
@@ -69,6 +72,16 @@ function Farms() {
 
     const loadFarms = async () => {
         setLoading(true);
+        if(farmsValid && farmsCache.length) {
+            let cacheValid = new Date(farmsValid);
+            let now = new Date();
+            if(now < cacheValid){
+                setFarms(farmsCache);
+                console.log('Farms loaded from cache');
+            } else {
+                console.log('Farms cache expired');
+            }
+        }
         await oligesManagementApi.get(`/farm/farmer/${id}`, { bearerToken: access_token, signal: controller.signal })
             .then((response) => {
                 console.log(response.data);
@@ -81,6 +94,14 @@ function Farms() {
                     address: farm.address,
                 }));
                 setFarms(transformedData);
+                let actualDate = new Date();
+                actualDate.setMinutes(actualDate.getMinutes() + 15);
+                let date = actualDate.toISOString();
+                let cacheDate = {
+                    farms: transformedData,
+                    date: date
+                }
+                dispatch(addFarms(cacheDate))
                 setLoading(false);
             })
             .catch(() => {

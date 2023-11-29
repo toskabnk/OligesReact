@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, LinearProgress, Tooltip } from "@mui/material"
 import { DataGridPremium, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, useGridApiRef } from "@mui/x-data-grid-premium"
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -13,14 +13,15 @@ import oligesManagementApi from "../services/apiServices";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import SnackbarComponent from "../components/SnackbarComponent";
+import { addReceipts } from "../redux/cacheSlice";
 
 
 function Receipts() {
     const apiRef = useGridApiRef();
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
-    const navigate = useNavigate();
-
+    const { receiptsCache, receiptsValid } = useSelector((state) => state.cache)
+    
     const [loading, setLoading] = useState(false);
     const [isEditting, setIsEditting] = useState(false);
     const [receipts, setReceipts] = useState([]);
@@ -30,6 +31,8 @@ function Receipts() {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     
     const snackbarRef = React.createRef();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
 
     useEffect(() => {
@@ -90,6 +93,16 @@ function Receipts() {
 
     const loadReceipts = async () => {
         setLoading(true)
+        if(receiptsValid && receiptsCache.length) {
+            let cacheValid = new Date(receiptsValid);
+            let now = new Date();
+            if(now < cacheValid){
+                setReceipts(receiptsCache);
+                console.log('Receipts loaded from cache');
+            } else {
+                console.log('Receipts cache expired');
+            }
+        }
         await oligesManagementApi.get('/receipt', {bearerToken: access_token})
         .then((response) => {
             console.log(response.data)
@@ -104,6 +117,14 @@ function Receipts() {
             }))
 
             setReceipts(transformedReceipts)
+            let actualDate = new Date();
+                actualDate.setMinutes(actualDate.getMinutes() + 15);
+                let date = actualDate.toISOString();
+                let cacheDate = {
+                    receipts: transformedReceipts,
+                    date: date
+                }
+                dispatch(addReceipts(cacheDate))
             setLoading(false)
         })
         .catch((error) => {

@@ -11,11 +11,13 @@ import { useNavigate } from "react-router-dom";
 import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
 import SnackbarComponent from "../components/SnackbarComponent";
+import { addCooperatives } from "../redux/cacheSlice";
 
 function Cooperatives() {
     const apiRef = useGridApiRef();
     const isFarmer = useSelector((state) => state.data.isFarmer)
     const access_token = useSelector((state) => state.data.access_token)
+    const { cooperativesCache, cooperativesValid } = useSelector((state) => state.cache);
     
     const [cooperatives, setCooperatives] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -29,6 +31,7 @@ function Cooperatives() {
     
     const controller = new AbortController();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     
     const handleLoadDetails = (row) => {
         setLoadDetails(true);
@@ -51,6 +54,16 @@ function Cooperatives() {
 
     const loadCooperatives = async () => {
         setLoading(true);
+        if(cooperativesValid && cooperativesCache.length) {
+            let cacheValid = new Date(cooperativesValid);
+            let now = new Date();
+            if(now < cacheValid){
+                setCooperatives(cooperativesCache);
+                console.log('Cooperatives loaded from cache');
+            } else {
+                console.log('Cooperatives cache expired');
+            }
+        }
         await oligesManagementApi.get('farmer/cooperatives', { bearerToken: access_token, signal: controller.signal })
             .then((response) => {
                 console.log(response.data);
@@ -67,6 +80,14 @@ function Cooperatives() {
                     active: cooperative.pivot.active === 1 ? 'Yes' : 'No',
                 }));
                 setCooperatives(transformedData);
+                let actualDate = new Date();
+                actualDate.setMinutes(actualDate.getMinutes() + 15);
+                let date = actualDate.toISOString();
+                let cacheDate = {
+                    cooperatives: transformedData,
+                    date: date
+                }
+                dispatch(addCooperatives(cacheDate))
                 setLoading(false);
             })
             .catch(() => {

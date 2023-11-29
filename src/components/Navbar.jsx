@@ -5,6 +5,7 @@ import oligesManagementApi from '../services/apiServices';
 import * as styled from '../styles/NavBarStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { deleteCache } from '../redux/cacheSlice';
 
 const Navbar =() => {  
 
@@ -43,6 +44,7 @@ const Navbar =() => {
                 Swal.close();
                 dispatch(deleteUser());
                 dispatch(deleteData());
+                dispatch(deleteCache());
                 Swal.fire({
                     icon: 'success',
                     title: 'Logout',

@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import { addUser } from '../redux/userSlice';
 import { addData } from '../redux/dataSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { deleteCache } from '../redux/cacheSlice';
 
 
 function Login() {
@@ -61,6 +62,7 @@ function Login() {
 
                 dispatch(addUser(userData));
                 dispatch(addData(data));
+                dispatch(deleteCache());
                 
                 navigate('/');
 
