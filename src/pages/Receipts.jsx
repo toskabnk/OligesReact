@@ -161,6 +161,7 @@ function Receipts() {
             field: 'albaran_number',
             headerName: 'Nº Receipt',
             width: 150,
+            type: 'number',
         },
         {
             field: 'farmer_name',
