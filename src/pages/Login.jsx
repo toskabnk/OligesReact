@@ -14,8 +14,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 function Login() {
     const [isLoading, setIsLoading] = useState(false);
-
-    const access_token = useSelector((state) => state.data.access_token)
     
     const navigate = useNavigate();
 
@@ -34,12 +32,6 @@ function Login() {
             await login(values);
         }
     })
-
-    useEffect(() => {
-        if (access_token) {
-            navigate('/');
-        }
-    }, [access_token])
 
     async function login(values) {
         setIsLoading(true);

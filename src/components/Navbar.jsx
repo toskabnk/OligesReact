@@ -48,10 +48,6 @@ const Navbar =() => {
                     title: 'Logout',
                     text: 'You have been logged out',
                     confirmButtonText: 'Ok',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        navigate('/');
-                    }
                 })
             })
             .catch((error) => {

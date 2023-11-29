@@ -11,22 +11,38 @@ import ReceiptDetails from '../pages/ReceiptDetails';
 import ReceiptRegister from '../pages/ReceiptRegister';
 import Cooperatives from '../pages/Cooperatives';
 import Farms from '../pages/Farms';
+import ProtectedRoute from './ProtectedRoute';
+import ProtectedFarmerRoute from './ProtectedFarmerRoutes';
+import ProtectedCooperativeRoute from './ProtectedCooperativeRoutes';
+import IsLoggedRoute from './IsLoggedRoutes';
 
 const Routes = () => {
     return (
         <ReactRoutes>
-        <Route path="/register" element={<Register/>} />
-        <Route path="/register-farmer" element={<FarmerRegister/>} />
-        <Route path="/register-cooperative" element={<CooperativeRegister/>} />
-        <Route path="/login" element={<Login/>} />
-        <Route path="/profile" element={<Profile/>} />
-        <Route path="/farmers" element={<Farmers/>} />
-        <Route path="/receipts" element={<Receipts/>} />
-        <Route path="/receipt-details" element={<ReceiptDetails/>} />
-        <Route path="/receipt-register" element={<ReceiptRegister/>} />
-        <Route path="/cooperatives" element={<Cooperatives/>} />
-        <Route path="/farms" element={<Farms/>} />
-        <Route path="/" element={<Home/>} />
+            {/* Not Logged Routes*/}
+            <Route element={<IsLoggedRoute/>}>
+                <Route path="/register" element={<Register/>} />
+                <Route path="/register-farmer" element={<FarmerRegister/>} />
+                <Route path="/register-cooperative" element={<CooperativeRegister/>} />
+                <Route path="/login" element={<Login/>} />
+            </Route>
+            {/* Logged Routes*/}
+            <Route  element={<ProtectedRoute/>} >
+                {/* Cooperative Only Routes*/}
+                <Route element={<ProtectedCooperativeRoute/>}>
+                    <Route path="/receipt-register" element={<ReceiptRegister/>} />
+                    <Route path="/farmers" element={<Farmers/>} />
+                </Route>
+                {/* Farmer Only Route*/}
+                <Route path="/farms" element={<ProtectedFarmerRoute><Farms/></ProtectedFarmerRoute>} />
+                {/* Shared Routes*/}
+                <Route path="/profile" element={<Profile/>} />
+                <Route path="/receipts" element={<Receipts/>} />
+                <Route path="/receipt-details" element={<ReceiptDetails/>} />
+                <Route path="/cooperatives" element={<Cooperatives/>} />
+            </Route>
+            {/* Home Route*/}
+            <Route path="/" element={<Home/>} />
         </ReactRoutes>
     )
 }
