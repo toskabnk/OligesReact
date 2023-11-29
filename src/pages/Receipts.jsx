@@ -190,8 +190,10 @@ function Receipts() {
             <GridToolbarFilterButton />
             <GridToolbarDensitySelector />
             <GridToolbarExport />
-            <Button startIcon={isEditting ? <EditOffIcon/> :<EditIcon />} variant="text" color="primary" onClick={() => {setIsEditting(!isEditting); toggleColumnVisibility('actions')}}>{isEditting ? 'Stop Edit' : 'Edit Receipts'}</Button>
-            <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={handleAddNew}>New Receipt</Button>
+            {isCooperative ? <>
+                <Button startIcon={isEditting ? <EditOffIcon/> :<EditIcon />} variant="text" color="primary" onClick={() => {setIsEditting(!isEditting); toggleColumnVisibility('actions')}}>{isEditting ? 'Stop Edit' : 'Edit Receipts'}</Button>
+                <Button startIcon={<AddIcon/>} variant="text" color="primary" onClick={handleAddNew}>New Receipt</Button>
+            </> : null}
           </GridToolbarContainer>
         );
     }
