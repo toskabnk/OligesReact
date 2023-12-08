@@ -159,7 +159,7 @@ const Reports = () => {
 
     function parseKilosByFarmer(response){
         let rows = [];
-        
+
         let index = 0;
         for (const kilo in response.data.data.kilos) {
             let row = {
@@ -194,6 +194,37 @@ const Reports = () => {
             }
             rows.push(row);
         }
+
+        let row = {
+            id: index,
+            farmer: farmerSelected.name + ' ' + farmerSelected.surname	,
+            manzanillas: '',
+            manzanillas_sampling: '',
+            gordal: '',
+            gordal_sampling: '',
+            purple: '',
+            purple_sampling: '',
+            molino: ''
+        }
+
+        response.data.data.total_kilos.forEach(kilo => {
+            if(kilo.type === 'Manzanilla'){
+                row.manzanillas = kilo.total_kilos;
+                row.manzanillas_sampling = kilo.avg_sampling;
+            } else if (kilo.type === 'Gordal'){
+                row.gordal = kilo.total_kilos;
+                row.gordal_sampling = kilo.avg_sampling;
+            }
+            else if (kilo.type === 'Morado'){
+                row.purple = kilo.total_kilos;
+            }
+            else if (kilo.type === 'Molino'){
+                row.molino = kilo.total_kilos;
+            }
+        })
+
+        row.farmer = 'Total:';
+        rows.push(row);
 
         return rows;
     }
