@@ -15,6 +15,7 @@ import ProtectedRoute from './ProtectedRoute';
 import ProtectedFarmerRoute from './ProtectedFarmerRoutes';
 import ProtectedCooperativeRoute from './ProtectedCooperativeRoutes';
 import IsLoggedRoute from './IsLoggedRoutes';
+import Reports from '../pages/Reports';
 
 const Routes = () => {
     return (
@@ -40,6 +41,7 @@ const Routes = () => {
                 <Route path="/receipts" element={<Receipts/>} />
                 <Route path="/receipt-details" element={<ReceiptDetails/>} />
                 <Route path="/cooperatives" element={<Cooperatives/>} />
+                <Route path="/reports" element={<Reports/>} />
             </Route>
             {/* Home Route*/}
             <Route path="/" element={<Home/>} />

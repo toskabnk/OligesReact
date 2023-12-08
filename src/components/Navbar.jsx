@@ -81,7 +81,7 @@ const Navbar =() => {
                                     <styled.NavBarLink to='/receipts'>Receipts</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
-                                    <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>
+                                    <styled.NavBarLink to='/reports'>Reports</styled.NavBarLink>
                                 </styled.NavBarItems>
                             </>
                         ) : (
@@ -96,7 +96,7 @@ const Navbar =() => {
                                     <styled.NavBarLink to='/farms'>Farms</styled.NavBarLink>
                                 </styled.NavBarItems>
                                 <styled.NavBarItems>
-                                    <styled.NavBarLink to='/'>Estadistics</styled.NavBarLink>
+                                    <styled.NavBarLink to='/reports'>Reports</styled.NavBarLink>
                                 </styled.NavBarItems>
                             </>
                         )}
