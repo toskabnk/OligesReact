@@ -75,9 +75,8 @@ function Farmers() {
         setIsSuccess(false);
     }
 
-    const handleButtonClick = (id) => {
-        // Handle button click logic here
-        console.log(id);
+    const handleViewReceiptsFarmer = (row) => {
+        navigate(`/receipts?dni=${row.dni}`)
     };
 
     const handleCloseSnackbar = () => {
@@ -495,7 +494,7 @@ function Farmers() {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => handleButtonClick(params.row)}>
+                            onClick={() => handleViewReceiptsFarmer(params.row)}>
                             <ReceiptLongIcon/>
                         </Button>
                     </Tooltip>

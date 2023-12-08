@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import oligesManagementApi from "../services/apiServices";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import SnackbarComponent from "../components/SnackbarComponent";
 import { addReceipts } from "../redux/cacheSlice";
@@ -18,6 +18,9 @@ import { addReceipts } from "../redux/cacheSlice";
 
 function Receipts() {
     const apiRef = useGridApiRef();
+    let [searchParams] = useSearchParams();
+    const dni = searchParams.get("dni");
+
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
     const { receiptsCache, receiptsValid } = useSelector((state) => state.cache)
@@ -29,11 +32,19 @@ function Receipts() {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [filter, setFilter] = useState(null);
     
     const snackbarRef = React.createRef();
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        if(dni) {
+            setFilter(dni)
+        } else {
+            setFilter(null)
+        }
+    }, [dni])
 
     useEffect(() => {
         loadReceipts()
@@ -242,6 +253,8 @@ function Receipts() {
                     toolbar: CustomToolbar,
                 }}
                 loading={loading}
+                filterModel={filter ? { items: [{ field: 'farmer_dni', operator: 'contains', value: filter }] } : {items: []}}
+
             />
             <SnackbarComponent
             ref={snackbarRef}
