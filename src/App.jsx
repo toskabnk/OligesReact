@@ -1,6 +1,6 @@
 import { StyledFlexFull } from './styles/StyledContainers'
-import Navbar from './components/Navbar';
 import Routes from './routes/Routes';
+import Navbar from './pages/Navbar';
 
 function App() {
   return (
