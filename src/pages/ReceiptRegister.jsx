@@ -1,4 +1,4 @@
-import { Autocomplete, Backdrop, Box, Button, CircularProgress, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Autocomplete, Backdrop, Box, Button, CircularProgress, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -11,6 +11,7 @@ import { DataGridPremium } from "@mui/x-data-grid-premium";
 import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsComponent";
 import SignatureCanvas from 'react-signature-canvas'
 import SnackbarComponent from "../components/SnackbarComponent";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const ReceiptRegister = () => {
     const access_token = useSelector((state) => state.data.access_token)
@@ -35,6 +36,9 @@ const ReceiptRegister = () => {
     const [showSnackBar, setShowSnackBar] = useState(false);
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
+    const types = ['Manzanilla', 'Gordal', 'Morado', 'Molino']
+    const [typeValue, setTypeValue] = useState(null);
+    const [inputType, setInputType] = useState('');
     const snackbarRef = React.createRef();
 
     const canvasRef = useRef();
@@ -141,6 +145,12 @@ const ReceiptRegister = () => {
         setShowSnackBar(false);
     };
 
+    const handleDeleteWeight = (row) => {
+        const newWeights = weights.filter((weight) => weight.id !== row.id);
+        setWeights(newWeights);
+        formik.setFieldValue('weights', newWeights)
+    };
+
     const columns = [
         {
             field: 'type',
@@ -151,38 +161,54 @@ const ReceiptRegister = () => {
             field: 'kilos',
             headerName: 'Kilos',
             type: 'number',
-            width: 150,
+            width: 100,
         },
         {
             field: 'sampling',
             headerName: 'Sampling',
             type: 'number',
-            width: 150,
+            width: 100,
         },
         {
             field: 'container',
             headerName: 'Container',
             type: 'number',
-            width: 150,
+            width: 120,
         },
         {
             field: 'purple_percentage',
             headerName: 'Purple %',
             type: 'number',
-            width: 150,
+            width: 120,
         },
         {
             field: 'rehu_percentage',
             headerName: 'Rehu %',
             type: 'number',
-            width: 150,
+            width: 120,
         },
         {
             field: 'leaves_percentage',
             headerName: 'Leaves %',
             type: 'number',
-            width: 150,
-          },
+            width: 120,
+        },
+        {
+            field: 'delete',
+            headerName: 'Delete',
+            width: 100,
+            renderCell: (params) => (
+                <Tooltip title="Delete" arrow>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleDeleteWeight(params.row)}>
+                        <DeleteForeverIcon/>
+                    </Button>
+                </Tooltip>
+            ),
+        },
     ];
 
     const formik = useFormik({
@@ -221,6 +247,8 @@ const ReceiptRegister = () => {
             purple_percentage: '',
             rehu_percentage: '',
             leaves_percentage: '',
+            tare: '',
+            total_kg: '',
         },
         validationSchema: Yup.object({
             type: Yup.string().max(10, 'Must be 10 characters or less').required('Required'),
@@ -230,10 +258,13 @@ const ReceiptRegister = () => {
             purple_percentage: Yup.number(),
             rehu_percentage: Yup.number(),
             leaves_percentage: Yup.number(),
+            tare: Yup.number().required('Required').positive().min(0, 'Must be greater than 0'),
+            total_kg: Yup.number().required('Required').positive().min(1, 'Must be greater than 0'),
         }),
         onSubmit: values => {
             console.log(values)
             addWeight(values)
+            weightFormik.resetForm()
         },
     });
 
@@ -432,15 +463,33 @@ const ReceiptRegister = () => {
                         </Box>
                         <Box sx={{margin: '15px',  display: 'flex', flexDirection: 'column', }}>
                             <Stack direction="row">
-                                <FormikTextField 
-                                    margin='normal'
-                                    sx={{marginRight: '15px'}} 
-                                    id='type' 
-                                    type='text' 
-                                    label='Type' 
-                                    required 
-                                    fullWidth 
-                                    formik={weightFormik}/>
+                            <Autocomplete
+                                disablePortal
+                                fullWidth
+                                id='type'
+                                options={types}
+                                margin='normal'
+                                inputValue={inputType}
+                                value={typeValue}
+                                sx={{marginRight: '15px', marginTop: '15px'}}
+                                onChange={(event, newValue) => {
+                                    setTypeValue(newValue);
+                                    weightFormik.setFieldValue('type', newValue)
+                                }}
+                                onInputChange={(event, newInputValue) => {
+                                    setInputType(newInputValue);
+                                }}
+                                renderInput={(params) => (
+                                    <TextField
+                                    {...params}
+                                    error={weightFormik.touched['type'] && Boolean(weightFormik.errors['type'])}
+                                    helperText={weightFormik.touched['type'] && weightFormik.errors['type']}
+                                    label="Type"
+                                    inputProps={{
+                                        ...params.inputProps
+                                    }}
+                                    />
+                                )}/>
                                 <TextField
                                     margin='normal' 
                                     sx={{marginRight: '15px'}}
@@ -448,13 +497,18 @@ const ReceiptRegister = () => {
                                     type='number' 
                                     label='Net Kilos'
                                     required
-                                    value={totalKg}
+                                    value={weightFormik.values.total_kg}
+                                    onBlur={weightFormik.handleBlur} 
+                                    error={weightFormik.touched['total_kg'] && Boolean(weightFormik.errors['total_kg'])}
+                                    helperText={weightFormik.touched['total_kg'] && weightFormik.errors['total_kg']}
+                                    
                                     onChange={(event) => {
                                         setTotalKg(event.target.value);
                                         const total_kg = event.target.value
                                         const tare = tareKg
                                         const net = total_kg - tare
                                         weightFormik.setFieldValue('kilos', net)
+                                        weightFormik.setFieldValue('total_kg', total_kg)
                                     }}
                                     fullWidth />
                                 <TextField
@@ -465,13 +519,17 @@ const ReceiptRegister = () => {
                                     label='Tare'
                                     required
                                     fullWidth
-                                    value={tareKg}
+                                    value={weightFormik.values.tare}
+                                    onBlur={weightFormik.handleBlur} 
+                                    error={weightFormik.touched['tare'] && Boolean(weightFormik.errors['tare'])}
+                                    helperText={weightFormik.touched['tare'] && weightFormik.errors['tare']}
                                     onChange={(event) => {
                                         setTareKg(event.target.value);
                                         const tare = event.target.value
                                         const total_kg = totalKg
                                         const net = total_kg - tare
                                         weightFormik.setFieldValue('kilos', net)
+                                        weightFormik.setFieldValue('tare', tare)
                                     }}/>
                                 <FormikTextField
                                     margin='normal' 
