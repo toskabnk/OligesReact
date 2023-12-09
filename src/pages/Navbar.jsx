@@ -183,51 +183,49 @@ function Navbar() {
 
   return (
     <AppBar position="static">
-            <Toolbar disableGutters>
-                <SvgIcon sx={{ color: 'black', fontSize: 60, display: { xs: 'none', md: 'flex' }, mr: 1 }} component={Logo} inheritViewBox />
-                <Typography
-                    variant="h6"
-                    noWrap
-                    component="a"
-                    sx={{
-                    mr: 2,
-                    display: { xs: 'none', md: 'flex' },
-                    fontFamily: 'system-ui',
-                    fontWeight: 700,
-                    letterSpacing: '.3rem',
-                    color: 'inherit',
-                    textDecoration: 'none',
-                    }}>
+        <Toolbar disableGutters>
+            <SvgIcon sx={{ color: 'black', fontSize: 60, display: { xs: 'none', md: 'flex' }, mr: 1 }} component={Logo} inheritViewBox />
+            <Typography
+                variant="h6"
+                noWrap
+                component="a"
+                sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'system-ui',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none',
+                }}>
                     Oliges
-                </Typography>
-                    {/* Mobile menu view */}
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit">
-                            <MenuIcon />
-                        </IconButton>
-                        <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorElNav}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                        open={Boolean(anchorElNav)}
-                        onClose={() => handleCloseNavMenu(null)}
-                        sx={{
-                            display: { xs: 'block', md: 'none' },
-                        }}>
+            </Typography>
+            {/* Mobile menu view */}
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleOpenNavMenu}
+                    color="inherit">
+                        <MenuIcon />
+                </IconButton>
+                <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorElNav}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                    open={Boolean(anchorElNav)}
+                    onClose={() => handleCloseNavMenu(null)}
+                    sx={{display: { xs: 'block', md: 'none' }}}>
                         {access_token ? 
                             isCooperative ?
                                 cooperativePage.map((option) => (
@@ -246,7 +244,8 @@ function Navbar() {
                                             <Typography textAlign="center">{option.name}</Typography>
                                         </Stack>
                                     </MenuItem>
-                                )) :
+                                ))
+                        :
                         page.map((option) => (
                             <MenuItem key={option.name} onClick={() => handleCloseNavMenu(option.url)}>
                                 <Stack direction="row" alignItems="center" gap={1}>
@@ -255,9 +254,9 @@ function Navbar() {
                                 </Stack>
                             </MenuItem>
                         ))}
-                        </Menu>
-                    </Box>
-                {/*End Mobile menu view */}
+                </Menu>
+            </Box>
+            {/*End Mobile menu view */}
             <SvgIcon sx={{ color: 'black', fontSize: 60, display: { xs: 'flex', md: 'none' }, mr: 1 }} component={Logo} inheritViewBox />
             <Typography
                 variant="h5"
@@ -287,7 +286,7 @@ function Navbar() {
                             {page.name}
                         </Button>
                     ))
-                :
+                    :
                     farmersPage.map((page) => (
                         <Button
                             startIcon={page.icon}
@@ -296,7 +295,8 @@ function Navbar() {
                             sx={{ my: 2, color: 'white', marginRight: 2}}>
                             {page.name}
                         </Button>
-                    )) :
+                    )) 
+                :
                 page.map((page) => (
                     <Button
                         startIcon={page.icon}
@@ -313,45 +313,45 @@ function Navbar() {
                     <Tooltip title="Open settings">
                         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                             <Typography
-                            variant="h6"
-                            noWrap
-                            component="a"
-                            sx={{
-                                mr: 2,
-                                display: { xs: 'none', md: 'flex' },
-                                fontFamily: 'system-ui',
-                                fontWeight: 700,
-                                letterSpacing: '.3rem',
-                                color: 'white',
-                                textDecoration: 'none',
-                            }}>
-                            {name}
+                                variant="h6"
+                                noWrap
+                                component="a"
+                                sx={{
+                                    mr: 2,
+                                    display: { xs: 'none', md: 'flex' },
+                                    fontFamily: 'system-ui',
+                                    fontWeight: 700,
+                                    letterSpacing: '.3rem',
+                                    color: 'white',
+                                    textDecoration: 'none',
+                                }}>
+                                {name}
                             </Typography>
                         </IconButton>
                     </Tooltip>
                     <Menu
-                    sx={{ mt: '45px' }}
-                    id="menu-appbar"
-                    anchorEl={anchorElUser}
-                    anchorOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                    open={Boolean(anchorElUser)}
-                    onClose={() => handleCloseUserMenu(null)}>
-                    {setting.map((option) => (
-                        <MenuItem key={option.name} onClick={() => handleCloseUserMenu(option.url)}>
-                            <Stack direction="row" alignItems="center" gap={1}>
-                                {option.icon}
-                                <Typography textAlign="center">{option.name}</Typography>
-                            </Stack>
-                        </MenuItem>
-                    ))}
+                        sx={{ mt: '45px' }}
+                        id="menu-appbar"
+                        anchorEl={anchorElUser}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        keepMounted
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'center',
+                        }}
+                        open={Boolean(anchorElUser)}
+                        onClose={() => handleCloseUserMenu(null)}>
+                        {setting.map((option) => (
+                            <MenuItem key={option.name} onClick={() => handleCloseUserMenu(option.url)}>
+                                <Stack direction="row" alignItems="center" gap={1}>
+                                    {option.icon}
+                                    <Typography textAlign="center">{option.name}</Typography>
+                                </Stack>
+                            </MenuItem>
+                        ))}
                     </Menu>
                 </Box> : null
             }
