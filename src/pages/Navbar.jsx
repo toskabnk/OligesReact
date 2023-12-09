@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Stack, SvgIcon } from '@mui/material';
 import Logo from '../assets/oliges_logo.svg?react';
 import oligesManagementApi from '../services/apiServices';
@@ -25,6 +25,8 @@ import TerrainIcon from '@mui/icons-material/Terrain';
 import PersonIcon from '@mui/icons-material/Person';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import LogoutIcon from '@mui/icons-material/Logout';
+import NavBarButton from '../components/NavbarComponents/ButtonComponent';
+import NavBarMenuItem from '../components/NavbarComponents/MenuItem';
 
 const farmersPage = [
     {
@@ -107,6 +109,7 @@ function Navbar() {
     const name = useSelector((state) => state.user.name)
     const access_token = useSelector((state) => state.data.access_token)
     const isCooperative = useSelector((state) => state.data.isCooperative)
+    const location = useLocation();
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -229,30 +232,15 @@ function Navbar() {
                         {access_token ? 
                             isCooperative ?
                                 cooperativePage.map((option) => (
-                                    <MenuItem key={option.name} onClick={() => handleCloseNavMenu(option.url)}>
-                                        <Stack direction="row" alignItems="center" gap={1}>
-                                            {option.icon}
-                                            <Typography textAlign="center">{option.name}</Typography>
-                                        </Stack>
-                                    </MenuItem>
+                                    <NavBarMenuItem key={option.name} option={option} handleCloseNavMenu={handleCloseNavMenu} />
                                 ))
                             :
                                 farmersPage.map((option) => (
-                                    <MenuItem key={option.name} onClick={() => handleCloseNavMenu(option.url)}>
-                                        <Stack direction="row" alignItems="center" gap={1}>
-                                            {option.icon}
-                                            <Typography textAlign="center">{option.name}</Typography>
-                                        </Stack>
-                                    </MenuItem>
+                                    <NavBarMenuItem key={option.name} option={option} handleCloseNavMenu={handleCloseNavMenu} />
                                 ))
                         :
                         page.map((option) => (
-                            <MenuItem key={option.name} onClick={() => handleCloseNavMenu(option.url)}>
-                                <Stack direction="row" alignItems="center" gap={1}>
-                                    {option.icon}
-                                    <Typography textAlign="center">{option.name}</Typography>
-                                </Stack>
-                            </MenuItem>
+                            <NavBarMenuItem key={option.name} option={option} handleCloseNavMenu={handleCloseNavMenu} />
                         ))}
                 </Menu>
             </Box>
@@ -278,33 +266,15 @@ function Navbar() {
             {access_token ? 
                 isCooperative ?
                     cooperativePage.map((page) => (
-                        <Button
-                            startIcon={page.icon}
-                            key={page.name}
-                            onClick={() => handleCloseNavMenu(page.url)}
-                            sx={{ my: 2, color: 'white', marginRight: 2}}>
-                            {page.name}
-                        </Button>
+                        <NavBarButton key={page.name} element={page} handleCloseNavMenu={handleCloseNavMenu} />
                     ))
                     :
                     farmersPage.map((page) => (
-                        <Button
-                            startIcon={page.icon}
-                            key={page.name}
-                            onClick={() => handleCloseNavMenu(page.url)}
-                            sx={{ my: 2, color: 'white', marginRight: 2}}>
-                            {page.name}
-                        </Button>
+                        <NavBarButton key={page.name} element={page} handleCloseNavMenu={handleCloseNavMenu} />
                     )) 
                 :
                 page.map((page) => (
-                    <Button
-                        startIcon={page.icon}
-                        key={page.name}
-                        onClick={() => handleCloseNavMenu(page.url)}
-                        sx={{ my: 2, color: 'white', marginRight: 2}}>
-                        {page.name}
-                    </Button>
+                    <NavBarButton key={page.name} element={page} handleCloseNavMenu={handleCloseNavMenu} />
                 ))}
             </Box>
             {/* User menu */
