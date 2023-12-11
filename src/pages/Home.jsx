@@ -1,8 +1,21 @@
+import backgroundImage from '../assets/olivar.jpg'
+import { StyledFlexFullCenter } from '../styles/StyledContainers';
+
 function Home() { 
-    return ( 
-        <div> 
-            <h1>Sistema de Gestion de Cooperativas Oliges</h1>
-        </div> 
-    ); 
+    const backgroundStyle = {
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        height: '100%',
+        minHeight: '92.5vh',
+        backgroundRepeat: 'no-repeat'
+    };
+    
+    return (
+        <StyledFlexFullCenter style={backgroundStyle}>
+            Oliges
+        </StyledFlexFullCenter>
+    );
 } 
+
 export default Home; 
