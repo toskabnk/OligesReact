@@ -168,12 +168,6 @@ function Navbar() {
                 dispatch(deleteUser());
                 dispatch(deleteData());
                 dispatch(deleteCache());
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Logout',
-                    text: 'You have been logged out',
-                    confirmButtonText: 'Ok',
-                })
             })
             .catch((error) => {
                 Swal.close();
