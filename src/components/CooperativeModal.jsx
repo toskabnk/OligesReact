@@ -1,7 +1,7 @@
 import { Paper, Table, TableBody, TableContainer, TableHead, TableRow } from "@mui/material";
 import { StyledTableCell, StyledTableCellGrey } from "../styles/TableStyles";
 
-const FarmersModal = ({ farmer }) => {
+const CooperativeModal = ({ cooperative }) => {
     return (
         <TableContainer sx={{marginLeft:'10px', marginRight:'10px'}} component={Paper}>
             <Table sx={{ minWidth: 700 }} aria-label="spanning table">
@@ -13,18 +13,16 @@ const FarmersModal = ({ farmer }) => {
                 </TableHead>
                 <TableBody>
                     <TableRow>
-                        <StyledTableCell align="left" colSpan={3}>{farmer?.id}</StyledTableCell>
-                        <StyledTableCell align="left" colSpan={3}>{farmer?.name + ' ' + farmer?.surname}</StyledTableCell>
+                        <StyledTableCell align="left" colSpan={3}>{cooperative?.id}</StyledTableCell>
+                        <StyledTableCell align="left" colSpan={3}>{cooperative?.name}</StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCellGrey align="center" colSpan={2}><strong>Email</strong></StyledTableCellGrey>
-                        <StyledTableCellGrey align="center" colSpan={2}><strong>Phone Number</strong></StyledTableCellGrey>
-                        <StyledTableCellGrey align="center" colSpan={2}><strong>Movil Number</strong></StyledTableCellGrey>
+                        <StyledTableCellGrey align="center" colSpan={3}><strong>Email</strong></StyledTableCellGrey>
+                        <StyledTableCellGrey align="center" colSpan={3}><strong>Phone Number</strong></StyledTableCellGrey>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.user?.email}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.phone_number}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.mobile_number}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={3}>{cooperative?.user?.email}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={3}>{cooperative?.phone_number}</StyledTableCell>
                     </TableRow>
                     <TableRow>
                         <StyledTableCellGrey align="center" colSpan={6}><strong>Address</strong></StyledTableCellGrey>
@@ -37,11 +35,11 @@ const FarmersModal = ({ farmer }) => {
                         <StyledTableCellGrey align="center" colSpan={1}><strong>Road km</strong></StyledTableCellGrey>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.road_type}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.address.road_name}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.road_number}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.road_letter}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.road_km}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.road_type}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={2}>{cooperative?.address.road_name}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.road_number}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.road_letter}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.road_km}</StyledTableCell>
                     </TableRow>
                     <TableRow>
                         <StyledTableCellGrey align="center" colSpan={1}><strong>Block</strong></StyledTableCellGrey>
@@ -52,12 +50,12 @@ const FarmersModal = ({ farmer }) => {
                         <StyledTableCellGrey align="center" colSpan={1}><strong>Town entity</strong></StyledTableCellGrey>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.block}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.portal}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.stair}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.floor}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.door}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.town_entity}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.block}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.portal}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.stair}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.floor}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.door}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.town_entity}</StyledTableCell>
                     </TableRow>
                     <TableRow>
                         <StyledTableCellGrey align="center" colSpan={2}><strong>Town name</strong></StyledTableCellGrey>
@@ -66,15 +64,16 @@ const FarmersModal = ({ farmer }) => {
                         <StyledTableCellGrey align="center" colSpan={1}><strong>Postal code</strong></StyledTableCellGrey>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.address.town_name}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={2}>{farmer?.address.province}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.country}</StyledTableCell>
-                        <StyledTableCell align="center" colSpan={1}>{farmer?.address.postal_code}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={2}>{cooperative?.address.town_name}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={2}>{cooperative?.address.province}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.country}</StyledTableCell>
+                        <StyledTableCell align="center" colSpan={1}>{cooperative?.address.postal_code}</StyledTableCell>
                     </TableRow>
                 </TableBody>
             </Table>
         </TableContainer>
+        
     )
 }
 
-export default FarmersModal;
+export default CooperativeModal

@@ -8,10 +8,10 @@ import CustomNoRowsOverlay from "../components/DataGridComponents/CustomNoRowsCo
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { useNavigate } from "react-router-dom";
-import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
 import SnackbarComponent from "../components/SnackbarComponent";
 import { addCooperatives } from "../redux/cacheSlice";
+import CooperativeModal from "../components/CooperativeModal";
 
 function Cooperatives() {
     const apiRef = useGridApiRef();
@@ -112,23 +112,6 @@ function Cooperatives() {
                 setShowSnackBar(true);
             })
     }
-
-    const ModalContent = () => (
-        <StyledPaper>
-            <InfoTypography variant="h6">ID: {cooperative?.id}</InfoTypography>
-            <InfoTypography>Name: {cooperative?.name}</InfoTypography>
-            <InfoTypography>Email: {cooperative?.user?.email}</InfoTypography>
-            <InfoTypography>Phone number: {cooperative?.phone_number}</InfoTypography>
-
-            <InfoTypography>
-                Address: {cooperative?.address.road_type} {cooperative?.address.road_name} {cooperative?.address.road_number} 
-                        {cooperative?.address.road_letter} {cooperative?.address.road_km} {cooperative?.address.block} 
-                        {cooperative?.address.portal} {cooperative?.address.stair} {cooperative?.address.floor} 
-                        {cooperative?.address.door} {cooperative?.address.town_entity} {cooperative?.address.town_name} 
-                        {cooperative?.address.province} {cooperative?.address.country} {cooperative?.address.postal_code}
-            </InfoTypography>
-        </StyledPaper>
-    );
 
     //Load farmers from API
     useEffect(() => {
@@ -245,7 +228,7 @@ function Cooperatives() {
                 justify="center"
                 >
                 <Grid item xs={3}>
-                    <ModalContent/>
+                    <CooperativeModal cooperative={cooperative}/>
                 </Grid>      
             </Grid>
         </Modal>
