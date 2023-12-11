@@ -1,4 +1,5 @@
 import { Backdrop, Box, CircularProgress, Stack, Typography } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import React, { useEffect, useRef, useState } from "react";
 import * as Yup from 'yup';
 import { useFormik } from "formik";
@@ -32,6 +33,7 @@ function Profile() {
     
     const snackbarRef = React.createRef();
     const canvasRef = useRef();
+    const theme = useTheme();
 
 
     const access_token = useSelector((state) => state.data.access_token)
@@ -247,7 +249,8 @@ function Profile() {
                         title: 'Error!',
                         text: 'Please check the errors',
                         icon: 'error',
-                        confirmButtonText: 'Ok'
+                        confirmButtonText: 'Ok',
+                        confirmButtonColor: theme.palette.error.main,
                     }).then((result) => {
                         if (result.isConfirmed) {
                             //Loop through errors and set formik errors
@@ -325,7 +328,8 @@ function Profile() {
                         title: 'Error!',
                         text: 'Please check the errors',
                         icon: 'error',
-                        confirmButtonText: 'Ok'
+                        confirmButtonText: 'Ok',
+                        confirmButtonColor: theme.palette.error.main,
                     }).then((result) => {
                         if (result.isConfirmed) {
                             //Loop through errors and set formik errors

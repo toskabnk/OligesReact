@@ -6,7 +6,7 @@ export const StyledFlexFullCenter = styled('div')`
   align-items: center;
   width: 100%;
   height: ${props => (props.height ? props.height : '100vh;')};;
-  background-color: #eeeeee;
+  background-color: ${props => props.theme.palette.background.default};
 `
 
 export const StyledFlexFull = styled('div')`
@@ -14,8 +14,8 @@ export const StyledFlexFull = styled('div')`
   flex-direction: column;
   width: 100%;
   min-height: 100vh;
-  height: ${props => (props.height ? props.height : '100vh;')};;
-  background-color: #eeeeee;
+  height: ${props => (props.height ? props.height : '100vh;')};
+  background-color: ${props => props.theme.palette.background.default};
 `
 
 export const StyledFlexCenter = styled('div')`

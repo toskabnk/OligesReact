@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, ButtonGroup, Card, LinearProgress, Tooltip } from "@mui/material"
+import { useTheme } from '@mui/material/styles';
 import { DataGridPremium, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, useGridApiRef } from "@mui/x-data-grid-premium"
 import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,6 +21,7 @@ function Receipts() {
     const apiRef = useGridApiRef();
     let [searchParams] = useSearchParams();
     const dni = searchParams.get("dni");
+    const theme = useTheme();
 
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
@@ -62,11 +64,13 @@ function Receipts() {
     const handleRemoveReceipt = (row) => {
         Swal.fire({
             title: 'Are you sure?',
-            text: `You are going to remove the receipt ${row.albaran_number} from ${row.farmer_name} ${row.farmer_lastname}`,
+            text: `You are going to remove the receipt ${row.albaran_number} from ${row.farmer_name} ${row.farmer_lastname}. Farmer will be notified.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, remove it!',
-            cancelButtonText: 'No, keep it'
+            cancelButtonText: 'No, keep it',
+            confirmButtonColor: theme.palette.error.main,
+            cancelButtonColor: theme.palette.success.main,
         }).then((result) => {
             if (result.isConfirmed) {
                 oligesManagementApi.delete(`/receipt/${row.id}`, {bearerToken: access_token})
