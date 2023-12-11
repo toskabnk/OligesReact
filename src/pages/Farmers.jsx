@@ -1,4 +1,5 @@
 import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ import { addFarmers } from "../redux/cacheSlice";
 
 function Farmers() {
     const apiRef = useGridApiRef();
+    const theme = useTheme();
     const isCooperative = useSelector((state) => state.data.isCooperative)
     const access_token = useSelector((state) => state.data.access_token)
     const { farmersCache, farmersValid} = useSelector((state) => state.cache);
@@ -89,6 +91,8 @@ function Farmers() {
             text: "This will remove the farmer from the cooperative!",
             icon: 'warning',
             confirmButtonText: 'Yes, remove it!',
+            confirmButtonColor: theme.palette.error.main,
+            cancelButtonColor: theme.palette.success.main,
             showCancelButton: true,
         }).then((result) => {
             if (result.isConfirmed) {
@@ -166,7 +170,8 @@ function Farmers() {
                     title: 'Error!',
                     text: 'Something went wrong',
                     icon: 'error',
-                    confirmButtonText: 'Ok'
+                    confirmButtonText: 'Ok',
+                    confirmButtonColor: theme.palette.error.main,
                 })
             })
     }
@@ -207,9 +212,10 @@ function Farmers() {
                     //Open sweet alert with errors
                     Swal.fire({
                         title: 'Error!',
-                        text: 'Please check the errors',
+                        text: 'Please, check the errors',
                         icon: 'error',
                         confirmButtonText: 'Ok',
+                        confirmButtonColor: theme.palette.success.main,
                         target: document.getElementById('dialog')
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -257,9 +263,10 @@ function Farmers() {
                 //Open sweet alert with errors
                 Swal.fire({
                     title: 'Error!',
-                    text: 'Please check the errors',
+                    text: 'Please, check the errors',
                     icon: 'error',
                     confirmButtonText: 'Ok',
+                    confirmButtonColor: theme.palette.error.main,
                     target: document.getElementById('dialog')
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -276,6 +283,7 @@ function Farmers() {
                         text: responseData.data['message'],
                         icon: 'error',
                         confirmButtonText: 'Ok',
+                        confirmButtonColor: theme.palette.error.main,
                         target: document.getElementById('dialog')
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -304,7 +312,8 @@ function Farmers() {
                     title: 'Error!',
                     text: 'Something went wrong',
                     icon: 'error',
-                    confirmButtonText: 'Ok'
+                    confirmButtonText: 'Ok',
+                    confirmButtonColor: theme.palette.error.main,
                 })
             })
     }
@@ -322,7 +331,8 @@ function Farmers() {
                     title: 'Error!',
                     text: 'Something went wrong',
                     icon: 'error',
-                    confirmButtonText: 'Ok'
+                    confirmButtonText: 'Ok',
+                    confirmButtonColor: theme.palette.error.main,
                 })
             })
     }

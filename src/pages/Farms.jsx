@@ -1,4 +1,5 @@
 import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Dialog, DialogContent, Grid, LinearProgress, Modal, Tooltip } from "@mui/material";
+import { useTheme } from '@mui/material/styles';
 import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useGridApiRef } from '@mui/x-data-grid';
 import React, { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ import { addFarms } from "../redux/cacheSlice";
 
 function Farms() {
     const apiRef = useGridApiRef();
+    const theme = useTheme();
     const id = useSelector((state) => state.user.id)
     const isFarmer = useSelector((state) => state.data.isFarmer)
     const access_token = useSelector((state) => state.data.access_token)
@@ -137,6 +139,7 @@ function Farms() {
                         text: 'Please check the errors',
                         icon: 'error',
                         confirmButtonText: 'Ok',
+                        confirmButtonColor: theme.palette.error.main,
                         target: document.getElementById('dialog')
                     }).then((result) => {
                         if (result.isConfirmed) {

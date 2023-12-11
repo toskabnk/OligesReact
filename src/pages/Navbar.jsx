@@ -9,6 +9,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Stack, SvgIcon } from '@mui/material';
@@ -104,6 +105,8 @@ const setting = [
 ]
 
 function Navbar() {
+    const theme = useTheme(); 
+
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const name = useSelector((state) => state.user.name)
@@ -142,8 +145,8 @@ function Navbar() {
             text: "You will be logged out",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: theme.palette.error.main,
+            cancelButtonColor: theme.palette.success.main,
         }).then((result) => {
             if (result.isConfirmed) {
                 logoutUser();
