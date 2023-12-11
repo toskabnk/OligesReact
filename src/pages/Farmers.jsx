@@ -10,7 +10,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { InfoTypography, StyledPaper } from "../styles/ModalStyles";
 import AddIcon from '@mui/icons-material/Add';
 import { GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport, GridToolbarDensitySelector } from '@mui/x-data-grid';
 import RegisterForm from "../components/RegisterFormComponents/RegisterForm";
@@ -24,6 +23,7 @@ import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import PersonIcon from '@mui/icons-material/Person';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import { addFarmers } from "../redux/cacheSlice";
+import FarmersModal from "../components/FarmersModal";
 
 function Farmers() {
     const apiRef = useGridApiRef();
@@ -337,24 +337,6 @@ function Farmers() {
             })
     }
 
-    const ModalContent = () => (
-        <StyledPaper>
-            <InfoTypography variant="h6">ID: {farmer?.id}</InfoTypography>
-            <InfoTypography>Name: {farmer?.name}</InfoTypography>
-            <InfoTypography>Email: {farmer?.user?.email}</InfoTypography>
-            <InfoTypography>Phone number: {farmer?.phone_number}</InfoTypography>
-            <InfoTypography>Mobile number: {farmer?.mobile_number}</InfoTypography>
-
-            <InfoTypography>
-                Address: {farmer?.address.road_type} {farmer?.address.road_name} {farmer?.address.road_number} 
-                        {farmer?.address.road_letter} {farmer?.address.road_km} {farmer?.address.block} 
-                        {farmer?.address.portal} {farmer?.address.stair} {farmer?.address.floor} 
-                        {farmer?.address.door} {farmer?.address.town_entity} {farmer?.address.town_name} 
-                        {farmer?.address.province} {farmer?.address.country} {farmer?.address.postal_code}
-            </InfoTypography>
-        </StyledPaper>
-    );
-
     //Load farmers from API
     useEffect(() => {
         loadFarmers()
@@ -575,7 +557,7 @@ function Farmers() {
                 justify="center"
                 >
                 <Grid item xs={3}>
-                    <ModalContent/>
+                    <FarmersModal farmer={farmer}/>
                 </Grid>      
             </Grid>
         </Modal>

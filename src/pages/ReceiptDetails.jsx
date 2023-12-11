@@ -1,24 +1,9 @@
 import { useEffect, useState } from "react";
-import { Alert, AlertTitle, Box, CircularProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
+import { Alert, AlertTitle, Box, CircularProgress, Paper, Table, TableBody, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import oligesManagementApi from "../services/apiServices";
-import styled from "styled-components";
-
-const StyledTableCell = styled(TableCell)(() => ({
-    borderRight: '1px solid #e0e0e0', // Color del borde
-    '&:last-child': {
-    borderRight: 'none',
-    },
-}));
-
-const StyledTableCellGrey = styled(TableCell)(() => ({
-    borderRight: '1px solid #e0e0e0', // Color del borde
-    '&:last-child': {
-    borderRight: 'none',
-    },
-    backgroundColor: '#f3f3f3'
-}));
+import { StyledTableCell, StyledTableCellGrey } from "../styles/TableStyles";
 
 const ReceiptDetails = ({width='80%'}) => {
     let [searchParams] = useSearchParams();
