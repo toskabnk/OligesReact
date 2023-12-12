@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, ButtonGroup, Card, LinearProgress, Tooltip } from "@mui/material"
+import { Backdrop, Button, ButtonGroup, Card, CircularProgress, Grid, LinearProgress, Modal, Tooltip } from "@mui/material"
 import { useTheme } from '@mui/material/styles';
 import { DataGridPremium, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, useGridApiRef } from "@mui/x-data-grid-premium"
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +15,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import SnackbarComponent from "../components/SnackbarComponent";
 import { addReceipts } from "../redux/cacheSlice";
+import { PDFViewer } from "@react-pdf/renderer";
+import ReceiptPDF from "../components/PDFComponents/ReceiptPDFComponents/ReceiptPDF";
 
 
 function Receipts() {
@@ -36,6 +38,9 @@ function Receipts() {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [filter, setFilter] = useState(null);
     const [fieldValue, setFieldValue] = useState(null);
+    const [receipt, setReceipt] = useState(null);
+    const [loadDetails, setLoadDetails] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     
     const snackbarRef = React.createRef();
     const navigate = useNavigate();
@@ -63,8 +68,8 @@ function Receipts() {
     }
 
     const handleReceipt = (row) => {
-        //TODO: Load receipt
-        console.log(row)
+        setLoadDetails(true);
+        loadReceiptDetails(row.id);
     }
 
     const handleRemoveReceipt = (row) => {
@@ -95,6 +100,31 @@ function Receipts() {
             }
         })
     }
+
+    const loadReceiptDetails = async (id) => {
+        await oligesManagementApi.get(`/receipt/${id}`, {bearerToken: access_token})
+        .then((response) => {
+            setReceipt(response.data.data.receipt)
+            setLoadDetails(false)
+            setOpenModal(true);
+        })
+        .catch((error) => {
+            console.log(error)
+            Swal.fire({
+                title: 'Error!',
+                text: 'Error loading receipt details',
+                icon: 'error',
+                confirmButtonText: 'Ok',
+                confirmButtonColor: theme.palette.error.main,
+            })
+            setLoadDetails(false)
+        })
+    }
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setReceipt(null);
+    };
 
     const handleAddNew = () => {
         navigate('/receipt-register')
@@ -278,6 +308,32 @@ function Receipts() {
             message={snackbarMessage}
             severity={severity}
             handleClose={handleCloseSnackbar}/>
+            <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={loadDetails}>
+            <CircularProgress color="inherit" />
+        </Backdrop>
+        <Modal open={openModal} onClose={handleCloseModal}>
+                        <Grid
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                            }}
+                            container
+                            spacing={0}
+                            direction="column"
+                            alignItems="center"
+                            justify="center"
+                            >
+                            <Grid item xs={3}>
+                                <PDFViewer width="1000" height="600">
+                                    <ReceiptPDF receipt={receipt}/>
+                                </PDFViewer>
+                            </Grid>
+                        </Grid>
+                    </Modal>
         </Card>
         
     )
