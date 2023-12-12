@@ -11,10 +11,16 @@ import { addUser } from '../redux/userSlice';
 import { addData } from '../redux/dataSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteCache } from '../redux/cacheSlice';
+import { Alert, IconButton } from '@mui/material';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 
 
 function Login() {
     const [isLoading, setIsLoading] = useState(false);
+    const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+    const isCooperative = useSelector((state) => state.data.isCooperative)
+    const [openAlert, setOpenAlert] = useState(false);
     
     const navigate = useNavigate();
 
@@ -63,22 +69,23 @@ function Login() {
                 dispatch(addUser(userData));
                 dispatch(addData(data));
                 dispatch(deleteCache());
-                
-                navigate('/');
-
             })
             .catch((error) => {
                 console.log(error);
                 setIsLoading(false);
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Invalid credentials',
-                    icon: 'error',
-                    confirmButtonText: 'Ok'
-                })
+                setOpenAlert(true);
             })
-
     }
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        if (isCooperative) {
+          navigate("/farmers");
+        } else {
+          navigate("/cooperatives");
+        }
+      }
+    }, [isAuthenticated]);
 
     return (
       <form onSubmit={formik.handleSubmit}>
@@ -109,6 +116,24 @@ function Login() {
             <Typography variant="h4" color="text.primary" align="center">
               Login
             </Typography>
+            <Collapse in={openAlert} sx={{ width: "100%" }}>
+              <Alert
+                variant="outlined" 
+                action={
+                    <IconButton
+                      aria-label="close"
+                      color="inherit"
+                      size="small"
+                      onClick={() => {
+                        setOpenAlert(false);
+                    }}>
+                        <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                }
+                severity="error">
+                    Invalid credentials
+              </Alert>
+            </Collapse>
             <Box sx={{ width: "100%", mt: 3 }}>
               <FormGroup>
                 <FormikTextField

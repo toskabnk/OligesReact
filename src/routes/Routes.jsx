@@ -25,7 +25,6 @@ const Routes = () => {
                 <Route path="/register" element={<Register/>} />
                 <Route path="/register-farmer" element={<FarmerRegister/>} />
                 <Route path="/register-cooperative" element={<CooperativeRegister/>} />
-                <Route path="/login" element={<Login/>} />
             </Route>
             {/* Logged Routes*/}
             <Route  element={<ProtectedRoute/>} >
@@ -45,6 +44,7 @@ const Routes = () => {
             </Route>
             {/* Home Route*/}
             <Route path="/" element={<Home/>} />
+            <Route path="/login" element={<Login/>} />
         </ReactRoutes>
     )
 }
