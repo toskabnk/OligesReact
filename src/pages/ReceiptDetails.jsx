@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Alert, AlertTitle, Box, CircularProgress, Paper, Table, TableBody, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
+import { Alert, AlertTitle, Box, Button, CircularProgress, Grid, Modal, Paper, Table, TableBody, TableContainer, TableHead, TableRow, Typography } from "@mui/material"
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import oligesManagementApi from "../services/apiServices";
 import { StyledTableCell, StyledTableCellGrey } from "../styles/TableStyles";
+import { PDFViewer } from "@react-pdf/renderer";
+import ReceiptPDF from "../components/PDFComponents/ReceiptPDFComponents/ReceiptPDF";
 
 const ReceiptDetails = ({width='80%'}) => {
     let [searchParams] = useSearchParams();
@@ -15,6 +17,7 @@ const ReceiptDetails = ({width='80%'}) => {
     const [errorText, setErrorText] = useState('');
     const [errorTitle, setErrorTitle] = useState('Error');
     const [receipt, setReceipt] = useState({});
+    const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         loadReceiptDetails()
@@ -34,6 +37,10 @@ const ReceiptDetails = ({width='80%'}) => {
             setLoading(false)
         })
     }
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    };
 
     return (
         <Paper sx={{
@@ -162,8 +169,30 @@ const ReceiptDetails = ({width='80%'}) => {
                         </>
                     )}
                     </Box>
+                    <Button disabled={loading} sx={{margin: 'auto', marginTop: '20px', marginBottom: '20px', width: '99%'}} variant="contained" onClick={() => setOpenModal(true)}>Print</Button>
+                    <Modal open={openModal} onClose={handleCloseModal}>
+                        <Grid
+                            sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                            }}
+                            container
+                            spacing={0}
+                            direction="column"
+                            alignItems="center"
+                            justify="center"
+                            >
+                            <Grid item xs={3}>
+                                <PDFViewer width="1000" height="600">
+                                    <ReceiptPDF receipt={receipt}/>
+                                </PDFViewer>
+                            </Grid>
+                        </Grid>
+                    </Modal>
                 </Box>
-            }   
+            }  
         </Paper>
     )
 }
