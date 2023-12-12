@@ -35,6 +35,7 @@ function Receipts() {
     const [severity, setSeverity] = useState('');
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [filter, setFilter] = useState(null);
+    const [fieldValue, setFieldValue] = useState(null);
     
     const snackbarRef = React.createRef();
     const navigate = useNavigate();
@@ -50,6 +51,11 @@ function Receipts() {
 
     useEffect(() => {
         loadReceipts()
+        if(isCooperative) {
+            setFieldValue('farmer_dni')
+        } else {
+            setFieldValue('cooperative_nif')
+        }
     }, [access_token]);
 
     const handleLoadDetails = (row) => {
@@ -129,6 +135,7 @@ function Receipts() {
                 farmer_name: receipt.farmer.name,
                 farmer_lastname: receipt.farmer.surname,
                 farmer_dni: receipt.farmer.dni,
+                cooperative_nif: receipt.cooperative.nif,
             }))
 
             setReceipts(transformedReceipts)
@@ -191,7 +198,12 @@ function Receipts() {
         {
             field: 'farmer_dni',
             headerName: 'Farmers DNI',
-            width: 200,
+            width: 180,
+        },
+        {
+            field: 'cooperative_nif',
+            headerName: 'Cooperative NIF',
+            width: 180,
         },
         {
             field: 'details',
@@ -257,7 +269,7 @@ function Receipts() {
                     toolbar: CustomToolbar,
                 }}
                 loading={loading}
-                filterModel={filter ? { items: [{ field: 'farmer_dni', operator: 'contains', value: filter }] } : {items: []}}
+                filterModel={filter ? { items: [{ field: fieldValue, operator: 'contains', value: filter }] } : {items: []}}
 
             />
             <SnackbarComponent

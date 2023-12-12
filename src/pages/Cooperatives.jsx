@@ -43,9 +43,8 @@ function Cooperatives() {
         setCooperative(null);
     };
 
-    const handleButtonClick = (id) => {
-        // Handle button click logic here
-        console.log(id);
+    const handleViewReceiptsCooperative = (row) => {
+        navigate(`/receipts?dni=${row.nif}`)
     };
 
     const handleCloseSnackbar = () => {
@@ -169,7 +168,7 @@ function Cooperatives() {
                         <Button
                             variant="contained"
                             color="primary"
-                            onClick={() => handleButtonClick(params.row)}>
+                            onClick={() => handleViewReceiptsCooperative(params.row)}>
                             <ReceiptLongIcon/>
                         </Button>
                     </Tooltip>
