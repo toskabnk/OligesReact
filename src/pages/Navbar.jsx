@@ -11,7 +11,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Stack, SvgIcon } from '@mui/material';
 import Logo from '../assets/oliges_logo.svg?react';
 import oligesManagementApi from '../services/apiServices';
@@ -31,11 +31,6 @@ import NavBarMenuItem from '../components/NavbarComponents/MenuItem';
 
 const farmersPage = [
     {
-        'name': 'Home',
-        'url': '/',
-        'icon': <HomeIcon/>,
-    },
-    {
         'name': 'Cooperatives',
         'url': '/cooperatives',
         'icon': <HomeIcon/>,
@@ -53,11 +48,6 @@ const farmersPage = [
 ]
 const cooperativePage = [
     {
-        'name': 'Home',
-        'url': '/',
-        'icon': <HomeIcon/>,
-    },
-    {
         'name': 'Farmers',
         'url': '/farmers',
         'icon': <AgricultureIcon/>,
@@ -74,11 +64,6 @@ const cooperativePage = [
     }
 ]
 const page = [
-    {
-        'name': 'Home',
-        'url': '/',
-        'icon': <HomeIcon/>,
-    },
     {
         'name': 'Login',
         'url': '/login',
@@ -185,6 +170,7 @@ function Navbar() {
     <AppBar position="static">
         <Toolbar disableGutters>
             <SvgIcon sx={{ color: 'black', fontSize: 60, display: { xs: 'none', md: 'flex' }, mr: 1 }} component={Logo} inheritViewBox />
+            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
             <Typography
                 variant="h6"
                 noWrap
@@ -200,6 +186,7 @@ function Navbar() {
                 }}>
                     Oliges
             </Typography>
+            </Link>
             {/* Mobile menu view */}
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                 <IconButton
@@ -259,7 +246,7 @@ function Navbar() {
                 }}>
                 Oliges
             </Typography>
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } , justifyContent: 'center'}}>
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } , justifyContent: access_token ? 'center' : 'flex-end'}}>
             {access_token ? 
                 isCooperative ?
                     cooperativePage.map((page) => (

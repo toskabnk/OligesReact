@@ -1,5 +1,5 @@
 import React from "react";
-import { SpinnerContainer, LoadingDiv } from "../styles/spinner";
+import { SpinnerContainer, LoadingDiv } from "../styles/Spinner";
 
 export default function LoadingSpinner() {
     return (
