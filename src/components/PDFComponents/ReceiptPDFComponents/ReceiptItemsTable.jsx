@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginTop: 24,
         borderWidth: 1,
-        borderColor: '#bff0fd',
+        borderColor: '#a7bb9a',
     },
 });
 
